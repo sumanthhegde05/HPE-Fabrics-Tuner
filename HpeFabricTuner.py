@@ -228,7 +228,7 @@ def get_mlnx_device_details():
         bus_id.Chipset = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()[-1]
         
         if 'Connect' not in bus_id.Chipset:
-            temp = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()[-1]
+            temp = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()
             bus_id.Chipset = temp[-2]+" "+temp[-1]
         bus_id.Interface_name = os_command(GET_INTERFACE_NAME.format(bus_id.name)).strip().split('/')[-1]
         bus_id.FW_version = os_command(GET_FW_VERSION.format(bus_id.Interface_name,'{print $3}')).strip()
@@ -268,7 +268,7 @@ class report:
         self.Os_kernel_version = os_command(GET_KERNAL_VERSION).strip()
 
 
-    def log_to_console_os_details(self):
+    def log_os_details(self):
         logger.info("\nOS : {} Kernel version is {} \n".format(self.Os_name,self.Os_kernel_version))
 
 
@@ -277,7 +277,7 @@ class report:
         self.Bios_version =  os_command(GET_BIOS_VERSION).strip()
         
 
-    def log_to_console_bios_details(self):
+    def log_bios_details(self):
         logger.info("Bios : {} {} \n".format(self.Bios_version,self.Bios_release_date))
 
         
@@ -291,7 +291,7 @@ class report:
         
 
 
-    def log_to_console_processor_details(self):
+    def log_processor_details(self):
         logger.info("Processor : {}, Socket#{}, Core#{} ,Thread#{}, MaxSpeed#{}, NUMA_NODE(S)#{} \n".format(self.processor_name,self.Socket_count,self.Core_count,self.Thread_count,self.Max_speed,self.NUMA_node))
 
 
@@ -324,11 +324,11 @@ class report:
                 break
 
 
-    def log_to_console_memory_details(self):    
+    def log_memory_details(self):    
         logger.info("Memory : Total Memory#{}, PerDIMM#{} {} {}, Populated DIMM's#{}\n".format(self.Total_memory,self.Dimm_size,self.Dimm_type,self.Dimm_speed,self.No_of_active_dimms))
 
     
-    def log_to_console_mlnx_device_details(self):
+    def log_mlnx_device_details(self):
         logger.info("Mellanox Devices :")
         for bus_id in Bus_id_list:
             logger.info("{} {} FW#{} PCISlot#{} NUMAnode#{} Lw#{} Ls#{} P/N#{} PSID#{} {} {} Type#{} Status#{} {}".format(bus_id.name,bus_id.Chipset,bus_id.FW_version,bus_id.Physical_slot,bus_id.NUMA_node,bus_id.Link_width,bus_id.Link_speed,bus_id.Part_number,bus_id.PSID,bus_id.Interface_name,bus_id.Network_if_name,bus_id.Card_type,bus_id.Port_status ,bus_id.Product_name))
@@ -337,32 +337,40 @@ class report:
 class os_settings:
 
     def __init__(self):
-        self.Recommended_Firewall_status = ''
-        self.Recommended_IRQ_balance = ''
-        self.Recommended_Ipv4_tcp_timestamps = ''
-        self.Recommended_Ipv4_tcp_sack = ''
-        self.Recommended_Netdv_max_backlog = ''
-        self.Recommended_Core_rmem_max = ''
-        self.Recommended_Core_wmem_max = ''
-        self.Recommended_Core_rmem_default = ''
-        self.Recommended_Core_wmem_drefault = ''
-        self.Recommended_Core_optmem_max = ''
-        self.Recommended_Net_ipv4_tcp_rmem = ''
-        self.Recommended_Net_ipv4_tcp_wmem = ''
-        self.Recommended_Net_ipv4_tcp_low_latency = ''
-        self.Recommended_LRO_ON = ''
-        self.Recommended_Rx_gro_hw = ''
-        self.Recommended_Rx_usecs = ''
-        self.Recommended_Tx_usecs = ''
-        self.Recommended_Ring_buffer_size_tx = ''
-        self.Recommended_Ring_buffer_size_rx = ''
-        self.Recommended_Combined_queue = ''
+        self.Recommended_Firewall_status = 'inactive (dead)'
+        self.Recommended_IRQ_balance = 'inactive (dead)'
+        self.Recommended_Ipv4_tcp_timestamps = 'disable (0)'
+        self.Recommended_Ipv4_tcp_sack = 'enable (1)'
+        self.Recommended_Netdv_max_backlog = '250000'
+        self.Recommended_Core_rmem_max = '4194304'
+        self.Recommended_Core_wmem_max = '4194304'
+        self.Recommended_Core_rmem_default = '4194304'
+        self.Recommended_Core_wmem_drefault = '4194304'
+        self.Recommended_Core_optmem_max = '4194304'
+        self.Recommended_Net_ipv4_tcp_rmem = '16777216'
+        self.Recommended_Net_ipv4_tcp_wmem = '16777216'
+        self.Recommended_Net_ipv4_tcp_low_latency = '1'
+        self.Recommended_LRO_ON = 'on'
+        self.Recommended_Rx_gro_hw = 'on'
+        self.Recommended_Rx_usecs = '0'
+        self.Recommended_Tx_usecs = '0'
+        self.Recommended_Ring_buffer_size_tx = '8192'
+        self.Recommended_Ring_buffer_size_rx = '8192'
+        self.Recommended_Combined_queue = '16'
         
     def get_os_settings(self,name):
         self.Firewall_status = ' '.join(os_command(GET_FIREWALL_STATUS).strip().split()[1:3]).lstrip()
         self.IRQ_balance = ' '.join(os_command(GET_IRQBALANCE_STATUS).strip().split()[1:3]).lstrip()
         self.Ipv4_tcp_timestamps = os_command(GET_IPV4_TCP_TIMESTAMPS).strip()
+        if self.Ipv4_tcp_timestamps == 0:
+            self.Ipv4_tcp_timestamps = 'disable (0)'
+        else:
+            self.Ipv4_tcp_timestamps = 'enable (1)'  
         self.Ipv4_tcp_sack = os_command(GET_IPV4_TCP_SACK).strip()
+        if self.Ipv4_tcp_sack == 0:
+            self.Ipv4_tcp_sack = 'disable (0)'
+        else:
+            self.Ipv4_tcp_sack = 'enable (1)'
         self.Netdv_max_backlog = os_command(GET_CORE_NETDV_MAX_BACKLOG).strip()
         self.Core_rmem_max = os_command(GET_NET_CORE_RMEM_MAX).strip()
         self.Core_wmem_max = os_command(GET_NET_CORE_WMEM_MAX).strip()
@@ -387,8 +395,12 @@ class os_settings:
                 temp.Combined_queue = os_command(GET_CHANNEL_PARAMETERS.format(bus_id.Network_if_name,'{print $2}')).split()
             name.append(temp)
     
-
+    def set_recommended_os_settings(self):
+        pass
+    
     def log_os_settings(self , new):
+        global Old_adapter_os_setting_list
+        global New_adapter_os_setting_list
         if self.Firewall_status == new.Firewall_status:
             logger.info("    Firewall Status         =    "+self.Firewall_status)
         else:
@@ -448,12 +460,12 @@ class os_settings:
                 logger.info("    "+Bus_id_list[index].name+"    =   Check_Driver")
             else:
                 logger.info("    "+Old_adapter_os_setting_list[index].name)
-                if Old_adapter_os_setting_list[index].LRO_ON == New_adapter_os_list[index].LRO_ON:
+                if Old_adapter_os_setting_list[index].LRO_ON == New_adapter_os_setting_list[index].LRO_ON:
                     logger.info("        LRO                 =    "+Old_adapter_os_setting_list[index].LRO_ON)
                 else:
-                    logger.info("        LRO                 =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].LRO_ON , New_adapter_os_list[index].LRO_ON))    
+                    logger.info("        LRO                 =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].LRO_ON , New_adapter_os_setting_list[index].LRO_ON))    
 
-                if Old_adapter_os_setting_list[index].Rx_gro_hw == Newadapter_os_setting_list[index].Rx_gro_hw:
+                if Old_adapter_os_setting_list[index].Rx_gro_hw == New_adapter_os_setting_list[index].Rx_gro_hw:
                     logger.info("        GRO                 =    "+Old_adapter_os_setting_list[index].Rx_gro_hw)
                 else:
                     logger.info("        GRO                 =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Rx_gro_hw , New_adapter_os_setting_list[index].Rx_gro_hw))
@@ -478,11 +490,70 @@ class os_settings:
                 else:
                     logger.info("        Combined queue      =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Combined_queue[1], New_adapter_os_setting_list[index].Combined_queue[1]))
  
+    def log_os_settings_report(self):
+        if self.Firewall_status == self.Recommended_Firewall_status: 
+            logger.info("    Firewall Status         =    "+self.Firewall_status)
+        else:
+            logger.info("    Firewall Status         =    {}    recommended : {}".format(self.Firewall_status,self.Recommended_Firewall_status))
+        if self.IRQ_balance == self.Recommended_IRQ_balance:
+            logger.info("    IRQ Balance             =    "+self.IRQ_balance)
+        else:
+            logger.info("    IRQ Balance             =    {}    recommended : {}".format(self.IRQ_balance,self.Recommended_IRQ_balance))
+        if self.Ipv4_tcp_timestamps == self.Recommended_Ipv4_tcp_timestamps:
+            logger.info("    TCP Timestamp           =    "+self.Ipv4_tcp_timestamps)
+        else:
+            logger.info("    TCP Timestamp           =    {}    recommended : {}".format(self.Ipv4_tcp_timestamps,self.Recommended_Ipv4_tcp_timestamps))
+        if self.Ipv4_tcp_sack == self.Recommended_Ipv4_tcp_sack:
+            logger.info("    TCP Selective Acks      =    "+self.Ipv4_tcp_sack)
+        else:
+            logger.info("    TCP Selective Acks      =    {}    recommended : {}".format(self.Ipv4_tcp_sack,self.Recommended_Ipv4_tcp_sack))
+        if self.Netdv_max_backlog == self.Recommended_Netdv_max_backlog:
+            logger.info("    Proc Input Queue        =    "+self.Netdv_max_backlog)
+        else:
+            logger.info("    Proc Input Queue        =    {}    recommended : {}".format(self.Netdv_max_backlog,self.Recommended_Netdv_max_backlog))
+        logger.info("    TCP Buffer Size:")
+        if self.Core_rmem_max == self.Recommended_Core_rmem_max:
+            logger.info("        RMEM Max            =    "+self.Core_rmem_max)
+        else:
+            logger.info("        RMEM Max            =    {}    recommended : {}".format(self.Core_rmem_max,self.Recommended_Core_rmem_max))
         
+        if self.Core_wmem_max == self.Recommended_Core_wmem_max:
+            logger.info("        WMEM Max            =    "+self.Core_wmem_max)
+        else:
+            logger.info("        WMEM Max            =    {}    recommended : {}".format(self.Core_wmem_max,self.Recommended_Core_wmem_max))
         
+        if self.Core_rmem_default == self.Recommended_Core_rmem_default:
+            logger.info("        RMEM Default        =    "+self.Core_rmem_default)
+        else: 
+            logger.info("        RMEM Default        =    {}    recommended : {}".format(self.Core_rmem_default,self.Recommended_Core_rmem_default))
         
+        if self.Core_wmem_drefault == self.Recommended_Core_wmem_drefault:
+            logger.info("        WMEM Default        =    "+self.Core_wmem_drefault)
+        else:
+            logger.info("        WMEM Default        =    {}    recommended : {}".format(self.Core_wmem_drefault,self.Recommended_Core_wmem_drefault))
         
+        if self.Core_optmem_max == self.Recommended_Core_optmem_max:
+            logger.info("        OPTMEM Max          =    "+self.Core_optmem_max)
+        else:
+            logger.info("        OPTMEM Max          =    {}    recommended : {}".format(self.Core_optmem_max, self.Recommended_Core_optmem_max))
+            
+        logger.info("    TCP Memory Size:")
+        if self.Net_ipv4_tcp_rmem == self.Recommended_Net_ipv4_tcp_rmem:
+            logger.info("        TCP RMEM            =    "+self.Net_ipv4_tcp_rmem)
+        else:
+            logger.info("        TCP RMEM            =    {}    recommended : {}".format(self.Net_ipv4_tcp_rmem,self.Recommended_Net_ipv4_tcp_rmem))
         
+        if self.Net_ipv4_tcp_wmem == self.Recommended_Net_ipv4_tcp_wmem:
+            logger.info("        TCP WMEM            =    "+self.Net_ipv4_tcp_wmem)
+        else:
+            logger.info("        TCP WMEM            =    {}    recommended : {}".format(self.Net_ipv4_tcp_wmem,self.Recommended_Net_ipv4_tcp_wmem))
+          
+        if self.Net_ipv4_tcp_low_latency == self.Recommended_Net_ipv4_tcp_low_latency:
+            logger.info("    TCP Low Latency         =    "+self.Net_ipv4_tcp_low_latency)
+        else:
+            logger.info("    TCP Low Latency         =    {}    recommended : {}".format(self.Net_ipv4_tcp_low_latency,self.Recommended_Net_ipv4_tcp_low_latency))
+        
+
         
 
 def add_options (parser):
@@ -520,6 +591,7 @@ if __name__=='__main__':
     Bus_id_list = []
     Old_adapter_os_setting_list = []
     New_adapter_os_setting_list = []
+    Adapter_os_setting_list = []
     parser = OptionParser(add_help_option=False)
     options , logger = initialize()
   
@@ -533,19 +605,23 @@ if __name__=='__main__':
     if options.report:
         report = report()
         report.get_os_details()
-        report.log_to_console_os_details()
+        report.log_os_details()
         report.get_bios_details()
-        report.log_to_console_bios_details()
+        report.log_bios_details()
         report.get_processor_details()
-        report.log_to_console_processor_details()
+        report.log_processor_details()
         report.get_memory_details()
-        report.log_to_console_memory_details()
-        report.log_to_console_mlnx_device_details()
-
+        report.log_memory_details()
+        report.log_mlnx_device_details()
+        
+        Os_settings = os_settings()
+        Os_settings.get_os_settings(Adapter_os_setting_list)
+        Os_settings.log_os_settings_report()
 
     elif options.os:
-        old_adapter_os_attributes = os_settings()
-        old_adapter_os_attributes.get_os_settings(Old_adapter_os_setting_list)
-        New_adapter_os_attributes = os_settings()
-        New_adapter_os_attributes.get_os_settings(New_adapter_os_setting_list)
-        old_adapter_os_attributes.log_os_settings(New_adapter_os_attributes)
+        Old_os_settings = os_settings()
+        Old_os_settings.get_os_settings(Old_adapter_os_setting_list)
+        Old_os_settings.set_recommended_os_settings()
+        New_os_settings = os_settings()
+        New_os_settings.get_os_settings(New_adapter_os_setting_list)
+        Old_os_settings.log_os_settings(New_os_settings)
