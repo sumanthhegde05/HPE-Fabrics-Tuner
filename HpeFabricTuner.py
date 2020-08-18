@@ -1,4 +1,4 @@
-"""#!usr/bin/python2.7"""
+"""#!/usr/bin/python2.7"""
 
 # -*- coding: utf-8 -*-
 
@@ -37,10 +37,10 @@ GET_LINK_WIDTH                  = "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1
 GET_INTERFACE_NAME              = "ls -l /sys/class/infiniband/* | grep {0}"
 GET_NW_INTERFCAE_NAME           = "ls -l /sys/class/net/* | grep '{0}'"
 GET_CHIPSET                     = "lspci -vvvs {0}"
-GET_FW_VERSION                  = "ibstat {0} | grep 'Firmware version:' | awk '{1}'"
-GET_PSID                        = "~/HpeFabricsTuner/mstflint -d {0} q | grep PSID: | awk '{1}'"
+GET_FW_VERSION                  = "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
+GET_PSID                        = "ethtool -i {0} | grep 'Link detected' | awk '{1}'"
 GET_CARD_TYPE                   = "lspci | grep -i mell | grep {0}"
-GET_CARD_STATUS                 = "ibstat {0}| grep State: | awk '{1}'"
+GET_CARD_STATUS                 = "ethtool {0} | grep 'firmware-version:' | awk '{1}'"
 GET_FIREWALL_STATUS             = "systemctl status firewalld | grep -i Active"
 GET_IRQBALANCE_STATUS           = "systemctl status irqbalance | grep -i Active"
 GET_LRO_ON                      = "ethtool -k {0} | grep -i large"
@@ -54,7 +54,7 @@ GET_NET_CORE_RMEM_MAX           = "sysctl -x net.core.rmem_max | awk '{print $3}
 GET_NET_CORE_WMEM_MAX           = "sysctl -x net.core.wmem_max | awk '{print $3}'"
 GET_NET_CORE_RMEM_DEFAULT       = "sysctl -x net.core.rmem_default | awk '{print $3}'"
 GET_NET_CORE_WMEM_DEFAULT       = "sysctl -x net.core.wmem_default | awk '{print $3}'"
-GET_NET_CORE_OPTMEM_MAX         = "sysctl -x net.core.optmem_max | awk '{print $3}'"
+GET_NET_CORE_OPTMEM_MAX         = "sysctl -x net.core.optmem_max | awk '{{print $3}}'"
 GET_NET_IPV4_TCP_RMEM           = "sysctl -x net.ipv4.tcp_rmem"
 GET_NET_IPV4_TCP_WMEM           = "sysctl -x net.ipv4.tcp_wmem"
 GET_NET_IPV4_TCP_LOW_LATENCY    = "sysctl -x net.ipv4.tcp_low_latency | awk '{print $3}'"
@@ -124,6 +124,7 @@ help_message = "\n -v, --version                    :   print tool version and e
 class adapter_details:
     def __init__(self):
         self.name = 'None'
+        self.flag = False
         self.Physical_slot = 'None'
         self.Chipset = 'None'
         self.Part_number = 'None'
@@ -215,6 +216,7 @@ def get_Bus_id_list():
 
 
 def get_mlnx_device_details():
+
     for bus_id in Bus_id_list:
         bus_id.Physical_slot = os_command(GET_PCI_SLOT.format(bus_id.name,'{print $3}')).strip()
         
@@ -231,7 +233,7 @@ def get_mlnx_device_details():
             temp = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()
             bus_id.Chipset = temp[-2]+" "+temp[-1]
         bus_id.Interface_name = os_command(GET_INTERFACE_NAME.format(bus_id.name)).strip().split('/')[-1]
-        bus_id.FW_version = os_command(GET_FW_VERSION.format(bus_id.Interface_name,'{print $3}')).strip()
+        
         
         if bus_id.Interface_name=='':
             bus_id.Interface_name = 'Check_Driver'
@@ -239,12 +241,22 @@ def get_mlnx_device_details():
         
         if bus_id.Network_if_name =='':
             bus_id.Network_if_name = 'Check_Driver'
-        bus_id.PSID = os_command(GET_PSID.format(bus_id.name,'{print $2}')).strip()
+            bus_id.FW_version = 'Check_Driver'
+            bus_id.PSID = 'Check_Driver'
+            bus_id.Port_status = 'Check_Driver'
+            bus_id.flag = True
+        else:
+            bus_id.FW_version = os_command(GET_FW_VERSION.format(bus_id.Network_if_name,'{print $2}')).strip()
+            bus_id.PSID = os_command(GET_PSID.format(bus_id.Network_if_name,'{print $3}')).lstrip('(').rstrip(')')
+            bus_id.Port_status = os_command(GET_CARD_STATUS.format(bus_id.Network_if_name,'{print $3}')).strip()
+            if bus_id.Port_status == 'yes':
+                bus_id.Port_status = 'Up'
+            else:
+                bus_id.Port_status = 'Down' 
         bus_id.Card_type = ' '.join(os_command(GET_CARD_TYPE.format(bus_id.name)).split()[1:3]).strip(':')
-        bus_id.Port_status = os_command(GET_CARD_STATUS.format(bus_id.Interface_name,'{print $2}')).strip()
-
+        
 def log():
-    logger.info("hey")
+    #logger.info("hey")
     """lscpu_data = os_command("lscpu")
     cpu_info = os_command("cat /proc/cpuinfo")
     logger.info(cpu_info)
@@ -331,16 +343,19 @@ class report:
     def log_mlnx_device_details(self):
         logger.info("Mellanox Devices :")
         for bus_id in Bus_id_list:
-            logger.info("{} {} FW#{} PCISlot#{} NUMAnode#{} Lw#{} Ls#{} P/N#{} PSID#{} {} {} Type#{} Status#{} {}".format(bus_id.name,bus_id.Chipset,bus_id.FW_version,bus_id.Physical_slot,bus_id.NUMA_node,bus_id.Link_width,bus_id.Link_speed,bus_id.Part_number,bus_id.PSID,bus_id.Interface_name,bus_id.Network_if_name,bus_id.Card_type,bus_id.Port_status ,bus_id.Product_name))
-
+            logger.info("{} {} FW#{} PCISlot#{} NUMAnode#{} Lw#{} Ls#{} P/N#{} PSID#{} {} {} Type#{} Status#{}".format(bus_id.name,bus_id.Chipset,bus_id.FW_version,bus_id.Physical_slot,bus_id.NUMA_node,bus_id.Link_width,bus_id.Link_speed,bus_id.Part_number,bus_id.PSID,bus_id.Interface_name,bus_id.Network_if_name,bus_id.Card_type,bus_id.Port_status))
+        for bus_id in Bus_id_list:
+            if bus_id.flag:
+                logger.warning("\033[93mWarning\033[0m : Check_driver = Driver is not installed or not loaded")
+                break
 
 class os_settings:
 
     def __init__(self):
         self.Recommended_Firewall_status = 'inactive (dead)'
         self.Recommended_IRQ_balance = 'inactive (dead)'
-        self.Recommended_Ipv4_tcp_timestamps = 'disable (0)'
-        self.Recommended_Ipv4_tcp_sack = 'enable (1)'
+        self.Recommended_Ipv4_tcp_timestamps = 'Disable (0)'
+        self.Recommended_Ipv4_tcp_sack = 'Enable (1)'
         self.Recommended_Netdv_max_backlog = '250000'
         self.Recommended_Core_rmem_max = '4194304'
         self.Recommended_Core_wmem_max = '4194304'
@@ -363,14 +378,14 @@ class os_settings:
         self.IRQ_balance = ' '.join(os_command(GET_IRQBALANCE_STATUS).strip().split()[1:3]).lstrip()
         self.Ipv4_tcp_timestamps = os_command(GET_IPV4_TCP_TIMESTAMPS).strip()
         if self.Ipv4_tcp_timestamps == 0:
-            self.Ipv4_tcp_timestamps = 'disable (0)'
+            self.Ipv4_tcp_timestamps = 'Disable (0)'
         else:
-            self.Ipv4_tcp_timestamps = 'enable (1)'  
+            self.Ipv4_tcp_timestamps = 'Enable (1)'  
         self.Ipv4_tcp_sack = os_command(GET_IPV4_TCP_SACK).strip()
         if self.Ipv4_tcp_sack == 0:
-            self.Ipv4_tcp_sack = 'disable (0)'
+            self.Ipv4_tcp_sack = 'Disable (0)'
         else:
-            self.Ipv4_tcp_sack = 'enable (1)'
+            self.Ipv4_tcp_sack = 'Enable (1)'
         self.Netdv_max_backlog = os_command(GET_CORE_NETDV_MAX_BACKLOG).strip()
         self.Core_rmem_max = os_command(GET_NET_CORE_RMEM_MAX).strip()
         self.Core_wmem_max = os_command(GET_NET_CORE_WMEM_MAX).strip()
@@ -402,157 +417,193 @@ class os_settings:
         global Old_adapter_os_setting_list
         global New_adapter_os_setting_list
         if self.Firewall_status == new.Firewall_status:
-            logger.info("    Firewall Status         =    "+self.Firewall_status)
+            logger.info("    Firewall Status         :    "+self.Firewall_status)
         else:
-            logger.info("    Firewall Status         =    Changed from {} to recommended {}".format(self.Firewall_status,new.Firewall_status))
+            logger.info("    Firewall Status         :    Changed from {} to recommended {}".format(self.Firewall_status,new.Firewall_status))
         if self.IRQ_balance == new.IRQ_balance:
-            logger.info("    IRQ Balance             =    "+self.IRQ_balance)
+            logger.info("    IRQ Balance             :    "+self.IRQ_balance)
         else:
-            logger.info("    IRQ Balance             =    Changed from {} to recommended {}".format(self.IRQ_balance,new.IRQ_balance))
+            logger.info("    IRQ Balance             :    Changed from {} to recommended {}".format(self.IRQ_balance,new.IRQ_balance))
         if self.Ipv4_tcp_timestamps == new.Ipv4_tcp_timestamps:
-            logger.info("    TCP Timestamp           =    "+self.Ipv4_tcp_timestamps)
+            logger.info("    TCP Timestamp           :    "+self.Ipv4_tcp_timestamps)
         else:
-            logger.info("    TCP Timestamp           =    Changed from {} to recommended {}".format(self.Ipv4_tcp_timestamps,new.Ipv4_tcp_timestamps))
+            logger.info("    TCP Timestamp           :    Changed from {} to recommended {}".format(self.Ipv4_tcp_timestamps,new.Ipv4_tcp_timestamps))
         if self.Ipv4_tcp_sack == new.Ipv4_tcp_sack:
-            logger.info("    TCP Selective Acks      =    "+self.Ipv4_tcp_sack)
+            logger.info("    TCP Selective Acks      :    "+self.Ipv4_tcp_sack)
         else:
-            logger.info("    TCP Selective Acks      =    Changed from {} to recommended {}".format(self.Ipv4_tcp_sack,new.Ipv4_tcp_sack))
+            logger.info("    TCP Selective Acks      :    Changed from {} to recommended {}".format(self.Ipv4_tcp_sack,new.Ipv4_tcp_sack))
         if self.Netdv_max_backlog == new.Netdv_max_backlog:
-            logger.info("    Proc Input Queue        =    "+self.Netdv_max_backlog)
+            logger.info("    Proc Input Queue        :    "+self.Netdv_max_backlog)
         else:
-            logger.info("    Proc Input Queue        =    Changed from {} to recommended {}".format(self.Netdv_max_backlog,new.Netdv_max_backlog))
+            logger.info("    Proc Input Queue        :    Changed from {} to recommended {}".format(self.Netdv_max_backlog,new.Netdv_max_backlog))
         logger.info("    TCP Buffer Size:")
         if self.Core_rmem_max == new.Core_rmem_max:
-            logger.info("        RMEM Max            =    "+self.Core_rmem_max)
+            logger.info("        RMEM Max            :    "+self.Core_rmem_max)
         else:
-            logger.info("        RMEM Max            =    Changed from {} to recommended {}".format(self.Core_rmem_max,new.Core_rmem_max))
+            logger.info("        RMEM Max            :    Changed from {} to recommended {}".format(self.Core_rmem_max,new.Core_rmem_max))
         if self.Core_wmem_max == new.Core_wmem_max:
-            logger.info("        WMEM Max            =    "+self.Core_wmem_max)
+            logger.info("        WMEM Max            :    "+self.Core_wmem_max)
         else:
-            logger.info("        WMEM Max            =    Changed from {} to recommended {}".format(self.Core_wmem_max,new.Core_wmem_max))
+            logger.info("        WMEM Max            :    Changed from {} to recommended {}".format(self.Core_wmem_max,new.Core_wmem_max))
         if self.Core_rmem_default == new.Core_rmem_default:
-            logger.info("        RMEM Default        =    "+self.Core_rmem_default)
+            logger.info("        RMEM Default        :    "+self.Core_rmem_default)
         else:
-            logger.info("        RMEM Default        =    Changed from {} to recommended {}".format(self.Core_rmem_default,new.Core_rmem_default))
+            logger.info("        RMEM Default        :    Changed from {} to recommended {}".format(self.Core_rmem_default,new.Core_rmem_default))
         if self.Core_wmem_drefault == new.Core_wmem_drefault:
-            logger.info("        WMEM Default        =    "+self.Core_wmem_drefault)
+            logger.info("        WMEM Default        :    "+self.Core_wmem_drefault)
         else:
-            logger.info("        WMEM Default        =    Changed from {} to recommended {}".format(self.Core_wmem_drefault,new.Core_wmem_drefault))
+            logger.info("        WMEM Default        :    Changed from {} to recommended {}".format(self.Core_wmem_drefault,new.Core_wmem_drefault))
         if self.Core_optmem_max == new.Core_optmem_max:
-            logger.info("        OPTMEM Max          =    "+self.Core_optmem_max)
+            logger.info("        OPTMEM Max          :    "+self.Core_optmem_max)
         else:   
-            logger.info("        OPTMEM Max          =    Changed from {} to recommended {}".format(self.Core_optmem_max,new.Core_optmem_max))
+            logger.info("        OPTMEM Max          :    Changed from {} to recommended {}".format(self.Core_optmem_max,new.Core_optmem_max))
         logger.info("    TCP Memory Size:")
         if self.Net_ipv4_tcp_rmem == new.Net_ipv4_tcp_rmem:
-            logger.info("        TCP RMEM            =    "+self.Net_ipv4_tcp_rmem)
+            logger.info("        TCP RMEM            :    "+self.Net_ipv4_tcp_rmem)
         else:
-            logger.info("        TCP RMEM            =    Changed from {} to recommended {}".format(self.Net_ipv4_tcp_rmem,new.Net_ipv4_tcp_rmem))
+            logger.info("        TCP RMEM            :    Changed from {} to recommended {}".format(self.Net_ipv4_tcp_rmem,new.Net_ipv4_tcp_rmem))
         if self.Net_ipv4_tcp_wmem == new.Net_ipv4_tcp_wmem:
-            logger.info("        TCP WMEM            =    "+self.Net_ipv4_tcp_wmem)
+            logger.info("        TCP WMEM            :    "+self.Net_ipv4_tcp_wmem)
         else:  
-            logger.info("        TCP WMEM            =    Changed from {} to recommended {}".format(self.Net_ipv4_tcp_wmem,new.Net_ipv4_tcp_wmem))
+            logger.info("        TCP WMEM            :    Changed from {} to recommended {}".format(self.Net_ipv4_tcp_wmem,new.Net_ipv4_tcp_wmem))
         if self.Net_ipv4_tcp_low_latency == new.Net_ipv4_tcp_low_latency:
-            logger.info("    TCP Low Latency         =    "+self.Net_ipv4_tcp_low_latency)
+            logger.info("    TCP Low Latency         :    "+self.Net_ipv4_tcp_low_latency)
         else:
-            logger.info("    TCP Low Latency         =    Changed from {} to recommended {}".format(self.Net_ipv4_tcp_low_latency,new.Net_ipv4_tcp_low_latency))
+            logger.info("    TCP Low Latency         :    Changed from {} to recommended {}".format(self.Net_ipv4_tcp_low_latency,new.Net_ipv4_tcp_low_latency))
         for index in range(len(Bus_id_list)):
             if Bus_id_list[index].Network_if_name == 'Check_Driver': 
-                logger.info("    "+Bus_id_list[index].name+"    =   Check_Driver")
+                logger.info("    "+Bus_id_list[index].name+"    :   Check_Driver")
             else:
                 logger.info("    "+Old_adapter_os_setting_list[index].name)
                 if Old_adapter_os_setting_list[index].LRO_ON == New_adapter_os_setting_list[index].LRO_ON:
-                    logger.info("        LRO                 =    "+Old_adapter_os_setting_list[index].LRO_ON)
+                    logger.info("        LRO                 :    "+Old_adapter_os_setting_list[index].LRO_ON)
                 else:
-                    logger.info("        LRO                 =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].LRO_ON , New_adapter_os_setting_list[index].LRO_ON))    
+                    logger.info("        LRO                 :    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].LRO_ON , New_adapter_os_setting_list[index].LRO_ON))    
 
                 if Old_adapter_os_setting_list[index].Rx_gro_hw == New_adapter_os_setting_list[index].Rx_gro_hw:
-                    logger.info("        GRO                 =    "+Old_adapter_os_setting_list[index].Rx_gro_hw)
+                    logger.info("        GRO                 :    "+Old_adapter_os_setting_list[index].Rx_gro_hw)
                 else:
-                    logger.info("        GRO                 =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Rx_gro_hw , New_adapter_os_setting_list[index].Rx_gro_hw))
+                    logger.info("        GRO                 :    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Rx_gro_hw , New_adapter_os_setting_list[index].Rx_gro_hw))
                 if Old_adapter_os_setting_list[index].Rx_usecs == New_adapter_os_setting_list[index].Rx_usecs:
-                    logger.info("        Adaptive Rx         =    "+Old_adapter_os_setting_list[index].Rx_usecs)
+                    logger.info("        Adaptive Rx         :    "+Old_adapter_os_setting_list[index].Rx_usecs)
                 else:
-                    logger.info("        Adaptive Rx         =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Rx_usecs, New_adapter_os_setting_list[index].Rx_usecs))
+                    logger.info("        Adaptive Rx         :    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Rx_usecs, New_adapter_os_setting_list[index].Rx_usecs))
                 if Old_adapter_os_setting_list[index].Tx_usecs == New_adapter_os_setting_list[index].Tx_usecs:
-                    logger.info("        Adaptive Tx         =    "+Old_adapter_os_setting_list[index].Tx_usecs)
+                    logger.info("        Adaptive Tx         :    "+Old_adapter_os_setting_list[index].Tx_usecs)
                 else:
-                    logger.info("        Adaptive Tx         =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Tx_usecs, New_adapter_os_setting_list[index].Tx_usecs))
+                    logger.info("        Adaptive Tx         :    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Tx_usecs, New_adapter_os_setting_list[index].Tx_usecs))
                 if Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1] == New_adapter_os_setting_list[index].Ring_buffer_size_rx[1]:
-                    logger.info("        Ring_buffer_RX      =    "+Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1])
+                    logger.info("        Ring_buffer_RX      :    "+Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1])
                 else:
-                    logger.info("        Ring_buffer_RX      =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1], New_adapter_os_setting_list[index].Ring_buffer_size_rx[1]))
+                    logger.info("        Ring_buffer_RX      :    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1], New_adapter_os_setting_list[index].Ring_buffer_size_rx[1]))
                 if Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1] == New_adapter_os_setting_list[index].Ring_buffer_size_tx[1]:
-                    logger.info("        Ring_buffer_TX      =    "+Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1])
+                    logger.info("        Ring_buffer_TX      :    "+Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1])
                 else:
-                    logger.info("        Ring_buffer_TX      =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1],Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1]) )
+                    logger.info("        Ring_buffer_TX      :    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1],New_adapter_os_setting_list[index].Ring_buffer_size_tx[1]) )
                 if Old_adapter_os_setting_list[index].Combined_queue[1] == New_adapter_os_setting_list[index].Combined_queue[1]:
-                    logger.info("        Combined queue      =    "+Old_adapter_os_setting_list[index].Combined_queue[1])
+                    logger.info("        Combined queue      :    "+Old_adapter_os_setting_list[index].Combined_queue[1])
                 else:
-                    logger.info("        Combined queue      =    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Combined_queue[1], New_adapter_os_setting_list[index].Combined_queue[1]))
+                    logger.info("        Combined queue      :    Changed from {} to recommended {}".format(Old_adapter_os_setting_list[index].Combined_queue[1], New_adapter_os_setting_list[index].Combined_queue[1]))
  
     def log_os_settings_report(self):
         if self.Firewall_status == self.Recommended_Firewall_status: 
-            logger.info("    Firewall Status         =    "+self.Firewall_status)
+            logger.info("    Firewall Status         :    "+self.Firewall_status)
         else:
-            logger.info("    Firewall Status         =    {}    recommended : {}".format(self.Firewall_status,self.Recommended_Firewall_status))
+            logger.info("    Firewall Status         :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Firewall_status,self.Recommended_Firewall_status))
         if self.IRQ_balance == self.Recommended_IRQ_balance:
-            logger.info("    IRQ Balance             =    "+self.IRQ_balance)
+            logger.info("    IRQ Balance             :    "+self.IRQ_balance)
         else:
-            logger.info("    IRQ Balance             =    {}    recommended : {}".format(self.IRQ_balance,self.Recommended_IRQ_balance))
+            logger.info("    IRQ Balance             :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.IRQ_balance,self.Recommended_IRQ_balance))
         if self.Ipv4_tcp_timestamps == self.Recommended_Ipv4_tcp_timestamps:
-            logger.info("    TCP Timestamp           =    "+self.Ipv4_tcp_timestamps)
+            logger.info("    TCP Timestamp           :    "+self.Ipv4_tcp_timestamps)
         else:
-            logger.info("    TCP Timestamp           =    {}    recommended : {}".format(self.Ipv4_tcp_timestamps,self.Recommended_Ipv4_tcp_timestamps))
+            logger.info("    TCP Timestamp           :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Ipv4_tcp_timestamps,self.Recommended_Ipv4_tcp_timestamps))
         if self.Ipv4_tcp_sack == self.Recommended_Ipv4_tcp_sack:
-            logger.info("    TCP Selective Acks      =    "+self.Ipv4_tcp_sack)
+            logger.info("    TCP Selective Acks      :    "+self.Ipv4_tcp_sack)
         else:
-            logger.info("    TCP Selective Acks      =    {}    recommended : {}".format(self.Ipv4_tcp_sack,self.Recommended_Ipv4_tcp_sack))
+            logger.info("    TCP Selective Acks      :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Ipv4_tcp_sack,self.Recommended_Ipv4_tcp_sack))
         if self.Netdv_max_backlog == self.Recommended_Netdv_max_backlog:
-            logger.info("    Proc Input Queue        =    "+self.Netdv_max_backlog)
+            logger.info("    Proc Input Queue        :    "+self.Netdv_max_backlog)
         else:
-            logger.info("    Proc Input Queue        =    {}    recommended : {}".format(self.Netdv_max_backlog,self.Recommended_Netdv_max_backlog))
-        logger.info("    TCP Buffer Size:")
+            logger.info("    Proc Input Queue        :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Netdv_max_backlog,self.Recommended_Netdv_max_backlog))
+        logger.info("\033[94m    TCP Buffer Size:\033[0m")
         if self.Core_rmem_max == self.Recommended_Core_rmem_max:
-            logger.info("        RMEM Max            =    "+self.Core_rmem_max)
+            logger.info("        RMEM Max            :    "+self.Core_rmem_max)
         else:
-            logger.info("        RMEM Max            =    {}    recommended : {}".format(self.Core_rmem_max,self.Recommended_Core_rmem_max))
+            logger.info("        RMEM Max            :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Core_rmem_max,self.Recommended_Core_rmem_max))
         
         if self.Core_wmem_max == self.Recommended_Core_wmem_max:
-            logger.info("        WMEM Max            =    "+self.Core_wmem_max)
+            logger.info("        WMEM Max            :    "+self.Core_wmem_max)
         else:
-            logger.info("        WMEM Max            =    {}    recommended : {}".format(self.Core_wmem_max,self.Recommended_Core_wmem_max))
+            logger.info("        WMEM Max            :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Core_wmem_max,self.Recommended_Core_wmem_max))
         
         if self.Core_rmem_default == self.Recommended_Core_rmem_default:
-            logger.info("        RMEM Default        =    "+self.Core_rmem_default)
+            logger.info("        RMEM Default        :    "+self.Core_rmem_default)
         else: 
-            logger.info("        RMEM Default        =    {}    recommended : {}".format(self.Core_rmem_default,self.Recommended_Core_rmem_default))
+            logger.info("        RMEM Default        :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Core_rmem_default,self.Recommended_Core_rmem_default))
         
         if self.Core_wmem_drefault == self.Recommended_Core_wmem_drefault:
-            logger.info("        WMEM Default        =    "+self.Core_wmem_drefault)
+            logger.info("        WMEM Default        :    "+self.Core_wmem_drefault)
         else:
-            logger.info("        WMEM Default        =    {}    recommended : {}".format(self.Core_wmem_drefault,self.Recommended_Core_wmem_drefault))
+            logger.info("        WMEM Default        :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Core_wmem_drefault,self.Recommended_Core_wmem_drefault))
         
         if self.Core_optmem_max == self.Recommended_Core_optmem_max:
-            logger.info("        OPTMEM Max          =    "+self.Core_optmem_max)
+            logger.info("        OPTMEM Max          :    "+self.Core_optmem_max)
         else:
-            logger.info("        OPTMEM Max          =    {}    recommended : {}".format(self.Core_optmem_max, self.Recommended_Core_optmem_max))
+            logger.info("        OPTMEM Max          :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Core_optmem_max, self.Recommended_Core_optmem_max))
             
-        logger.info("    TCP Memory Size:")
+        logger.info("\033[94m    TCP Memory Size:\033[0m")
         if self.Net_ipv4_tcp_rmem == self.Recommended_Net_ipv4_tcp_rmem:
-            logger.info("        TCP RMEM            =    "+self.Net_ipv4_tcp_rmem)
+            logger.info("        TCP RMEM            :    "+self.Net_ipv4_tcp_rmem)
         else:
-            logger.info("        TCP RMEM            =    {}    recommended : {}".format(self.Net_ipv4_tcp_rmem,self.Recommended_Net_ipv4_tcp_rmem))
+            logger.info("        TCP RMEM            :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Net_ipv4_tcp_rmem,self.Recommended_Net_ipv4_tcp_rmem))
         
         if self.Net_ipv4_tcp_wmem == self.Recommended_Net_ipv4_tcp_wmem:
-            logger.info("        TCP WMEM            =    "+self.Net_ipv4_tcp_wmem)
+            logger.info("        TCP WMEM            :    "+self.Net_ipv4_tcp_wmem)
         else:
-            logger.info("        TCP WMEM            =    {}    recommended : {}".format(self.Net_ipv4_tcp_wmem,self.Recommended_Net_ipv4_tcp_wmem))
+            logger.info("        TCP WMEM            :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Net_ipv4_tcp_wmem,self.Recommended_Net_ipv4_tcp_wmem))
           
         if self.Net_ipv4_tcp_low_latency == self.Recommended_Net_ipv4_tcp_low_latency:
-            logger.info("    TCP Low Latency         =    "+self.Net_ipv4_tcp_low_latency)
+            logger.info("    TCP Low Latency         :    "+self.Net_ipv4_tcp_low_latency)
         else:
-            logger.info("    TCP Low Latency         =    {}    recommended : {}".format(self.Net_ipv4_tcp_low_latency,self.Recommended_Net_ipv4_tcp_low_latency))
+            logger.info("    TCP Low Latency         :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(self.Net_ipv4_tcp_low_latency,self.Recommended_Net_ipv4_tcp_low_latency))
         
+        for index in range(len(Bus_id_list)):
+            if Bus_id_list[index].Network_if_name == 'Check_Driver': 
+                logger.info("    "+Bus_id_list[index].name+"    :   Check_Driver")
+            else:
+                logger.info("    "+Adapter_os_setting_list[index].name)
+                
+                if Adapter_os_setting_list[index].LRO_ON == self.Recommended_LRO_ON:
+                    logger.info("        LRO                 :    "+Adapter_os_setting_list[index].LRO_ON)
+                else:
+                    logger.info("        LRO                 :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(Adapter_os_setting_list[index].LRO_ON , self.Recommended_LRO_ON))
+                
+                if Adapter_os_setting_list[index].Rx_gro_hw == self.Recommended_Rx_gro_hw:
+                    logger.info("        GRO                 :    "+Adapter_os_setting_list[index].Rx_gro_hw)
+                else:
+                    logger.info("        GRO                 :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(Adapter_os_setting_list[index].Rx_gro_hw , self.Recommended_Rx_gro_hw))
+                if Adapter_os_setting_list[index].Rx_usecs == self.Recommended_Rx_usecs:
+                    logger.info("        Adaptive Rx         :    "+Adapter_os_setting_list[index].Rx_usecs)
+                else:
+                    logger.info("        Adaptive Rx         :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(Adapter_os_setting_list[index].Rx_usecs, self.Recommended_Rx_usecs))
+                if Adapter_os_setting_list[index].Tx_usecs == self.Recommended_Tx_usecs:
+                    logger.info("        Adaptive Tx         :    "+Adapter_os_setting_list[index].Tx_usecs)
+                else:
+                    logger.info("        Adaptive Tx         :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(Adapter_os_setting_list[index].Tx_usecs, self.Recommended_Tx_usecs))
+                if Adapter_os_setting_list[index].Ring_buffer_size_rx[1] == self.Recommended_Ring_buffer_size_rx:
+                    logger.info("        Ring_buffer_RX      :    "+Adapter_os_setting_list[index].Ring_buffer_size_rx[1])
+                else:
+                    logger.info("        Ring_buffer_RX      :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(Adapter_os_setting_list[index].Ring_buffer_size_rx[1], self.Recommended_Ring_buffer_size_rx))
+                if Adapter_os_setting_list[index].Ring_buffer_size_tx[1] == self.Recommended_Ring_buffer_size_tx:
+                    logger.info("        Ring_buffer_TX      :    "+Adapter_os_setting_list[index].Ring_buffer_size_tx[1])
+                else:
+                    logger.info("        Ring_buffer_TX      :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(Adapter_os_setting_list[index].Ring_buffer_size_tx[1],self.Recommended_Ring_buffer_size_tx) )
+                if Adapter_os_setting_list[index].Combined_queue[1] == self.Recommended_Combined_queue:
+                    logger.info("        Combined queue      :    "+Adapter_os_setting_list[index].Combined_queue[1])
+                else:
+                    logger.info("        Combined queue      :    {}    [\033[93m  Recommended\033[0m : \033[92m {}\033[0m ]".format(Adapter_os_setting_list[index].Combined_queue[1], self.Recommended_Combined_queue))
+ 
 
         
 
@@ -588,6 +639,7 @@ def initialize():
 
 
 if __name__=='__main__':
+ 
     Bus_id_list = []
     Old_adapter_os_setting_list = []
     New_adapter_os_setting_list = []
@@ -597,6 +649,7 @@ if __name__=='__main__':
   
     if options.help:
         logger.info(help_message)
+       
         sys.exit()
 
     get_Bus_id_list()
