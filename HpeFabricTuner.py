@@ -11,57 +11,57 @@ from optparse import OptionParser,OptionGroup
 from textwrap import dedent
 import logging
 
-GET_SERVER_MANUFACTURER_NAME    = "dmidecode -t system | grep Manufacturer | awk '{print $2}'"
-GET_SERVER_PRODUCT_NAME         = "dmidecode -t system | grep 'Product Name'"
-GET_OS_NAME                     = "cat /etc/os-release | grep 'PRETTY_NAME'"
-GET_KERNAL_VERSION              = "uname -r"
-GET_BIOS_RELEASE_DATE           = "dmidecode -t bios | grep 'Release Date:'"
-GET_BIOS_VERSION                = "dmidecode -t bios | grep 'Version:' | awk '{print $2}'"
-GET_PROCESSOR_NAME              = "dmidecode -t processor | grep 'Version'"
-GET_SOCKETS_COUNT               = "dmidecode -t processor | grep 'Version'"
-GET_CORE_COUNT                  = "dmidecode -t processor | grep 'Core Count'"
-GET_THREAD_COUNT                = "dmidecode -t processor | grep 'Thread Count'"
-GET_MAX_SPEED                   = "dmidecode -t processor | grep 'Max Speed'"
-GET_NUMA_NODE_COUNT             = "lscpu | grep NUMA"
-GET_NO_OF_DIMMS                 = "dmidecode -t memory | grep 'Number Of Devices:'"
-GET_DIMM_SIZE                   = "dmidecode -t memory | grep '^\s*Size:'"
-GET_TOTAL_MEMORY                = "free | grep Mem | awk '{print $2}'"
-GET_MEMORY_SPEED                = "dmidecode -t memory | grep '^\s*Speed:'"
-GET_MEMORY_TYPE                 = "dmidecode -t memory | grep '^\s*Type:'"
-GET_MLNX_DEVICES                = "lspci | grep -i mell"
-GET_NUMA_NODE                   = "lspci -vvvs {0} | grep 'NUMA node:' | awk '{1}'"
-GET_PART_NUMBER                 = "lspci -vvvs {0} | grep -i 'Part number:' | awk '{1}'"
-GET_PRODUCT_NAME                = "lspci -vvvs {0} | grep -i 'Product name:'"
-GET_PCI_SLOT                    = "lspci -vvvs {0} | grep -i 'Physical slot:' | awk '{1}'"
-GET_LINK_SPEED                  = "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
-GET_LINK_WIDTH                  = "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
-GET_INTERFACE_NAME              = "ls -l /sys/class/infiniband/* | grep {0}"
-GET_NW_INTERFCAE_NAME           = "ls -l /sys/class/net/* | grep '{0}'"
-GET_CHIPSET                     = "lspci -vvvs {0}"
-GET_FW_VERSION                  = "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
-GET_PSID                        = "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
-GET_CARD_TYPE                   = "lspci | grep -i mell | grep {0}"
-GET_CARD_STATUS                 = "ethtool {0} | grep 'Link detected' | awk '{1}'"
-GET_FIREWALL_STATUS             = "systemctl status firewalld | grep -i Active"
-GET_IRQBALANCE_STATUS           = "systemctl status irqbalance | grep -i Active"
-GET_LRO_ON                      = "ethtool -k {0} | grep -i large"
-GET_RX_GRO_HW                   = "ethtool -k {0} | grep -i gro"
-GET_TX_USECS                    = "ethtool -c {0} | grep -i 'tx-usecs:'"
-GET_RX_USECS                    = "ethtool -c {0} | grep -i 'rx-usecs:'"
-GET_IPV4_TCP_TIMESTAMPS         = "sysctl -x net.ipv4.tcp_timestamps | awk '{print $3}'"
-GET_IPV4_TCP_SACK               = "sysctl -x net.ipv4.tcp_sack  | awk '{print $3}'"
-GET_CORE_NETDV_MAX_BACKLOG      = "sysctl -x net.core.netdev_max_backlog | awk '{print $3}'"
-GET_NET_CORE_RMEM_MAX           = "sysctl -x net.core.rmem_max | awk '{print $3}'"
-GET_NET_CORE_WMEM_MAX           = "sysctl -x net.core.wmem_max | awk '{print $3}'"
-GET_NET_CORE_RMEM_DEFAULT       = "sysctl -x net.core.rmem_default | awk '{print $3}'"
-GET_NET_CORE_WMEM_DEFAULT       = "sysctl -x net.core.wmem_default | awk '{print $3}'"
-GET_NET_CORE_OPTMEM_MAX         = "sysctl -x net.core.optmem_max | awk '{{print $3}}'"
-GET_NET_IPV4_TCP_RMEM           = "sysctl -x net.ipv4.tcp_rmem"
-GET_NET_IPV4_TCP_WMEM           = "sysctl -x net.ipv4.tcp_wmem"
-GET_NET_IPV4_TCP_LOW_LATENCY    = "sysctl -x net.ipv4.tcp_low_latency | awk '{print $3}'"
-GET_RING_PARAMETERS_TX          = "ethtool -g {0} | grep TX: | awk '{1}'"
-GET_RING_PARAMETERS_RX          = "ethtool -g {0} | grep RX: | awk '{1}'"
-GET_COMBINED_QUEUE              = "ethtool -l {0} | grep Combined: | awk '{1}'" 
+GET_SERVER_MANUFACTURER_NAME    =   "dmidecode -t system | grep Manufacturer | awk '{print $2}'"
+GET_SERVER_PRODUCT_NAME         =   "dmidecode -t system | grep 'Product Name'"
+GET_OS_NAME                     =   "cat /etc/os-release | grep 'PRETTY_NAME'"
+GET_KERNAL_VERSION              =   "uname -r"
+GET_BIOS_RELEASE_DATE           =   "dmidecode -t bios | grep 'Release Date:'"
+GET_BIOS_VERSION                =   "dmidecode -t bios | grep 'Version:' | awk '{print $2}'"
+GET_PROCESSOR_NAME              =   "dmidecode -t processor | grep 'Version'"
+GET_SOCKETS_COUNT               =   "dmidecode -t processor | grep 'Version'"
+GET_CORE_COUNT                  =   "dmidecode -t processor | grep 'Core Count'"
+GET_THREAD_COUNT                =   "dmidecode -t processor | grep 'Thread Count'"
+GET_MAX_SPEED                   =   "dmidecode -t processor | grep 'Max Speed'"
+GET_NUMA_NODE_COUNT             =   "lscpu | grep NUMA"
+GET_NO_OF_DIMMS                 =   "dmidecode -t memory | grep 'Number Of Devices:'"
+GET_DIMM_SIZE                   =   "dmidecode -t memory | grep '^\s*Size:'"
+GET_TOTAL_MEMORY                =   "free | grep Mem | awk '{print $2}'"
+GET_MEMORY_SPEED                =   "dmidecode -t memory | grep '^\s*Speed:'"
+GET_MEMORY_TYPE                 =   "dmidecode -t memory | grep '^\s*Type:'"
+GET_MLNX_DEVICES                =   "lspci | grep -i mell"
+GET_NUMA_NODE                   =   "lspci -vvvs {0} | grep 'NUMA node:' | awk '{1}'"
+GET_PART_NUMBER                 =   "lspci -vvvs {0} | grep -i 'Part number:' | awk '{1}'"
+GET_PRODUCT_NAME                =   "lspci -vvvs {0} | grep -i 'Product name:'"
+GET_PCI_SLOT                    =   "lspci -vvvs {0} | grep -i 'Physical slot:' | awk '{1}'"
+GET_LINK_SPEED                  =   "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
+GET_LINK_WIDTH                  =   "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
+GET_INTERFACE_NAME              =   "ls -l /sys/class/infiniband/* | grep {0}"
+GET_NW_INTERFCAE_NAME           =   "ls -l /sys/class/net/* | grep '{0}'"
+GET_CHIPSET                     =   "lspci -vvvs {0}"
+GET_FW_VERSION                  =   "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
+GET_PSID                        =   "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
+GET_CARD_TYPE                   =   "lspci | grep -i mell | grep {0}"
+GET_CARD_STATUS                 =   "ethtool {0} | grep 'Link detected' | awk '{1}'"
+GET_FIREWALL_STATUS             =   "systemctl status firewalld | grep -i Active"
+GET_IRQBALANCE_STATUS           =   "systemctl status irqbalance | grep -i Active"
+GET_LRO_ON                      =   "ethtool -k {0} | grep -i large"
+GET_RX_GRO_HW                   =   "ethtool -k {0} | grep -i gro"
+GET_TX_USECS                    =   "ethtool -c {0} | grep -i 'tx-usecs:'"
+GET_RX_USECS                    =   "ethtool -c {0} | grep -i 'rx-usecs:'"
+GET_IPV4_TCP_TIMESTAMPS         =   "sysctl -x net.ipv4.tcp_timestamps | awk '{print $3}'"
+GET_IPV4_TCP_SACK               =   "sysctl -x net.ipv4.tcp_sack  | awk '{print $3}'"
+GET_CORE_NETDV_MAX_BACKLOG      =   "sysctl -x net.core.netdev_max_backlog | awk '{print $3}'"
+GET_NET_CORE_RMEM_MAX           =   "sysctl -x net.core.rmem_max | awk '{print $3}'"
+GET_NET_CORE_WMEM_MAX           =   "sysctl -x net.core.wmem_max | awk '{print $3}'"
+GET_NET_CORE_RMEM_DEFAULT       =   "sysctl -x net.core.rmem_default | awk '{print $3}'"
+GET_NET_CORE_WMEM_DEFAULT       =   "sysctl -x net.core.wmem_default | awk '{print $3}'"
+GET_NET_CORE_OPTMEM_MAX         =   "sysctl -x net.core.optmem_max | awk '{{print $3}}'"
+GET_NET_IPV4_TCP_RMEM           =   "sysctl -x net.ipv4.tcp_rmem"
+GET_NET_IPV4_TCP_WMEM           =   "sysctl -x net.ipv4.tcp_wmem"
+GET_NET_IPV4_TCP_LOW_LATENCY    =   "sysctl -x net.ipv4.tcp_low_latency | awk '{print $3}'"
+GET_RING_PARAMETERS_TX          =   "ethtool -g {0} | grep TX: | awk '{1}'"
+GET_RING_PARAMETERS_RX          =   "ethtool -g {0} | grep RX: | awk '{1}'"
+GET_COMBINED_QUEUE              =   "ethtool -l {0} | grep Combined: | awk '{1}'" 
 
 SET_FIREWALL_OFF                    =   "systemctl stop firewalld 2> /dev/null"
 SET_IRQBALANCE_OFF                  =   "systemctl stop irqbalance 2> /dev/null"
@@ -81,20 +81,20 @@ SET_NET_IPV4_TCP_RMEM               =   "sysctl -w net.ipv4.tcp_rmem='{}' 2> /de
 SET_NET_IPV4_TCP_WMEM               =   "sysctl -w net.ipv4.tcp_wmem='{}' 2> /dev/null"
 SET_RING_PARAMETERS_TX_RX           =   "ethtool -G {} tx {} rx {} 2> /dev/null"
 SET_COMBINED_QUEUE                  =   "ethtool -L {} combined {} 2> /dev/null"
-SET_IPV4_LOW_LATENCY = "sysctl -w net.ipv4.tcp_low_latency=1 "
+SET_IPV4_LOW_LATENCY                =   "sysctl -w net.ipv4.tcp_low_latency=1 "
 
-General_Power_Efficient_Compute =       "General_Power_Efficient_Compute"
-General_Peak_Frequency_Compute =        "General_Peak_Frequency_Compute"
-General_Throughput_Compute =            "General_Throughput_Compute"
-Virtualization_Power_Efficient=         "Virtualization_ower_Efficient"
-Virtualization_Max_Performance =        "Virtualization_Max_Performance"
-Low_Latency =                           "Low_Latency"
-Transactional_Application_Processing =  "Transactional_Application_Processing"
-High_Performance_Compute=               "High_Performance_Compute (HPC)"
-Decision_support =                      "Decision_Support"
-Graphic_processing =                    "Graphic_Processing"
-IO_throughput =                         "I/O_Throughput"
-Custom =                                "Custom"
+General_Power_Efficient_Compute         =   "General_Power_Efficient_Compute"
+General_Peak_Frequency_Compute          =   "General_Peak_Frequency_Compute"
+General_Throughput_Compute              =   "General_Throughput_Compute"
+Virtualization_Power_Efficient          =   "Virtualization_ower_Efficient"
+Virtualization_Max_Performance          =   "Virtualization_Max_Performance"
+Low_Latency                             =   "Low_Latency"
+Transactional_Application_Processing    =   "Transactional_Application_Processing"
+High_Performance_Compute                =   "High_Performance_Compute (HPC)"
+Decision_support                        =   "Decision_Support"
+Graphic_processing                      =   "Graphic_Processing"
+IO_throughput                           =   "I/O_Throughput"
+Custom                                  =   "Custom"
 
 ALLOWED_PROFILES =  [
                         General_Power_Efficient_Compute,
@@ -139,34 +139,6 @@ help_message = "\n -v, --version                    :   print tool version and e
 	            \n - 'hpefabrictuner –-report'             #Report detailed report on Hardware/BIOS/OS \
 	            \n - 'hpefabrictuner –-debug'              #Capture all the report info and save it as a tar ball\n"
 
-class adapter_details:
-    def __init__(self):
-        self.name = 'None'
-        self.flag = False
-        self.Physical_slot = 'None'
-        self.Chipset = 'None'
-        self.Part_number = 'None'
-        self.Product_name = 'None'
-        self.Link_speed = 'None'
-        self.Link_width = 'None'
-        self.Interface_name = 'None'
-        self.Network_if_name = 'None'
-        self.NUMA_node = 'None'
-        self.PSID = 'None'
-        self.Card_type = 'None'
-        self.Port_status = 'None'
-        self.FW_version = 'None'
-        
-class adapter_os_details():
-    def __init__(self):
-        self.name = 'None'
-        self.LRO_ON = 'None'
-        self.Rx_gro_hw = 'None'
-        self.Rx_usecs = 'None'
-        self.Tx_usecs = 'None'
-        self.Combined_queue = 'None'
-        self.Ring_buffer_size_tx = 'None'
-        self.Ring_buffer_size_rx = 'None'
 
 class colors:
     red         = '\033[31m'
@@ -198,7 +170,37 @@ class colors:
     blcyan      = '\033[1;96m'
     
     END='\033[0m'
-    
+
+
+class adapter_details:
+    def __init__(self):
+        self.name = 'Unknown'
+        self.flag = False
+        self.Physical_slot = 'Unknown'
+        self.Chipset = 'Unknown'
+        self.Part_number = 'Unknown'
+        self.Product_name = 'Unknown'
+        self.Link_speed = 'Unknown'
+        self.Link_width = 'Unknown'
+        self.Interface_name = 'Unknown'
+        self.Network_if_name = 'Unknown'
+        self.NUMA_node = 'Unknown'
+        self.PSID = 'Unknown'
+        self.Card_type = 'Unknown'
+        self.Port_status = 'Unknown'
+        self.FW_version = 'Unknown'
+        
+class adapter_os_details():
+    def __init__(self):
+        self.name = 'Unknown'
+        self.LRO_ON = 'Unknown'
+        self.Rx_gro_hw = 'Unknown'
+        self.Rx_usecs = 'Unknown'
+        self.Tx_usecs = 'Unknown'
+        self.Combined_queue = 'Unknown'
+        self.Ring_buffer_size_tx = 'Unknown'
+        self.Ring_buffer_size_rx = 'Unknown'
+
 
 def os_command(command):
     """hostname = "132.168.2.131"
@@ -246,113 +248,92 @@ def conversion(Total_memory , Dimm_size):
     Dimm_size = str(Dimm_size)+" "+add_on
     return Total_memory , Dimm_size
 
-class mlnx_devices:
+
         
-    def get_mlnx_device_details(self):
+def get_mlnx_device_details():
+    global Bus_id_list
+    mellanox_devices = os_command(GET_MLNX_DEVICES)
+    mellanox_devices_list = mellanox_devices.strip().split('\n')
+    temp_list = [ item.split()[0] for item in mellanox_devices_list]
+    temp = adapter_details()
+    temp.name = temp_list[0]
+    Bus_id_list.append(temp)
+    for elem in range(1,len(temp_list)):
+        if temp_list[elem][:2]!=temp_list[elem-1][:2]:
+            temp = adapter_details()
+            temp.name = temp_list[elem]
+            Bus_id_list.append(temp)
         
-        mellanox_devices = os_command(GET_MLNX_DEVICES)
-        mellanox_devices_list = mellanox_devices.strip().split('\n')
-        temp_list = [ item.split()[0] for item in mellanox_devices_list]
-        temp = adapter_details()
-        temp.name = temp_list[0]
-        Bus_id_list.append(temp)
-        for elem in range(1,len(temp_list)):
-            if temp_list[elem][:2]!=temp_list[elem-1][:2]:
-                temp = adapter_details()
-                temp.name = temp_list[elem]
-                Bus_id_list.append(temp)
-            
-        for bus_id in Bus_id_list:
-            bus_id.Physical_slot = os_command(GET_PCI_SLOT.format(bus_id.name,'{print $3}')).strip()
-            
-            if bus_id.Physical_slot == '':
-                bus_id.Physical_slot = 'LOM'
-            bus_id.Part_number = os_command(GET_PART_NUMBER.format(bus_id.name,'{print $4}')).strip()
-            bus_id.Product_name = os_command(GET_PRODUCT_NAME.format(bus_id.name)).strip().split(':')[-1]
-            bus_id.Link_speed = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $3}')).strip().strip(',')
-            bus_id.Link_width = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $5}')).strip().strip(',')
-            bus_id.NUMA_node = os_command(GET_NUMA_NODE.format(bus_id.name,'{print $3}')).strip()
-            bus_id.Chipset = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()[-1]
-            
-            if 'Connect' not in bus_id.Chipset:
-                temp = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()
-                bus_id.Chipset = temp[-2]+" "+temp[-1]
-            bus_id.Interface_name = os_command(GET_INTERFACE_NAME.format(bus_id.name)).strip().split('/')[-1]
-            
-            
-            if bus_id.Interface_name=='':
-                bus_id.Interface_name = 'Check_Driver'
-            bus_id.Network_if_name = os_command(GET_NW_INTERFCAE_NAME.format(bus_id.name)).strip().split('/')[-1]
-            
-            if bus_id.Network_if_name =='':
-                bus_id.Network_if_name = 'Check_Driver'
-                bus_id.FW_version = 'Check_Driver'
-                bus_id.PSID = 'Check_Driver'
-                bus_id.Port_status = 'Check_Driver'
-                bus_id.flag = True
+    for bus_id in Bus_id_list:
+        bus_id.Physical_slot = os_command(GET_PCI_SLOT.format(bus_id.name,'{print $3}')).strip()
+        
+        if bus_id.Physical_slot == '':
+            bus_id.Physical_slot = 'LOM'
+        bus_id.Part_number = os_command(GET_PART_NUMBER.format(bus_id.name,'{print $4}')).strip()
+        bus_id.Product_name = os_command(GET_PRODUCT_NAME.format(bus_id.name)).strip().split(':')[-1]
+        bus_id.Link_speed = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $3}')).strip().strip(',')
+        bus_id.Link_width = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $5}')).strip().strip(',')
+        bus_id.NUMA_node = os_command(GET_NUMA_NODE.format(bus_id.name,'{print $3}')).strip()
+        bus_id.Chipset = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()[-1]
+        
+        if 'Connect' not in bus_id.Chipset:
+            temp = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()
+            bus_id.Chipset = temp[-2]+" "+temp[-1]
+        bus_id.Interface_name = os_command(GET_INTERFACE_NAME.format(bus_id.name)).strip().split('/')[-1]
+        
+        
+        if bus_id.Interface_name=='':
+            bus_id.Interface_name = 'Check_Driver'
+        bus_id.Network_if_name = os_command(GET_NW_INTERFCAE_NAME.format(bus_id.name)).strip().split('/')[-1]
+        
+        if bus_id.Network_if_name =='':
+            bus_id.Network_if_name = 'Check_Driver'
+            bus_id.FW_version = 'Check_Driver'
+            bus_id.PSID = 'Check_Driver'
+            bus_id.Port_status = 'Check_Driver'
+            bus_id.flag = True
+        else:
+            bus_id.FW_version = os_command(GET_FW_VERSION.format(bus_id.Network_if_name,'{print $2}')).strip()
+            bus_id.PSID = os_command(GET_PSID.format(bus_id.Network_if_name,'{print $3}')).replace('(','').replace(')','').strip()
+            bus_id.Port_status = os_command(GET_CARD_STATUS.format(bus_id.Network_if_name,'{print $3}')).strip()
+            if bus_id.Port_status == 'yes':
+                bus_id.Port_status = 'Up'
             else:
-                bus_id.FW_version = os_command(GET_FW_VERSION.format(bus_id.Network_if_name,'{print $2}')).strip()
-                bus_id.PSID = os_command(GET_PSID.format(bus_id.Network_if_name,'{print $3}')).replace('(','').replace(')','').strip()
-                bus_id.Port_status = os_command(GET_CARD_STATUS.format(bus_id.Network_if_name,'{print $3}')).strip()
-                if bus_id.Port_status == 'yes':
-                    bus_id.Port_status = 'Up'
-                else:
-                    bus_id.Port_status = 'Down' 
-            bus_id.Card_type = ' '.join(os_command(GET_CARD_TYPE.format(bus_id.name)).split()[1:3]).strip(':')
-            
-            
-        string = colors.lblue+"Mellanox Devices"+colors.END+" : \n"
+                bus_id.Port_status = 'Down' 
+        bus_id.Card_type = ' '.join(os_command(GET_CARD_TYPE.format(bus_id.name)).split()[1:3]).strip(':')
         
-        for bus_id in Bus_id_list:
-            string += colors.violet+bus_id.name+colors.END+" "+bus_id.Chipset+" "
-            string += colors.violet+"FW"+colors.END+"#"+bus_id.FW_version+" "
-            string += colors.violet+"PCISlot"+colors.END+"#"+bus_id.Physical_slot+" "
-            string += colors.violet+"NUMAnode"+colors.END+"#"+bus_id.NUMA_node+" "
-            string += colors.violet+"Lw"+colors.END+"#"+bus_id.Link_width+" "
-            string += colors.violet+"Ls"+colors.END+"#"+bus_id.Link_speed+" " 
-            string += colors.violet+"P/N"+colors.END+"#"+bus_id.Part_number+" "
-            string += colors.violet+"PSID"+colors.END+"#"+bus_id.PSID+" "+bus_id.Interface_name+" "+bus_id.Network_if_name+" "
-            string += colors.violet+"Type"+colors.END+"#"+bus_id.Card_type+" "
-            string += colors.violet+"LnkStat"+colors.END+"#"+bus_id.Port_status+"\n"
         
-        for bus_id in Bus_id_list:
-            if bus_id.flag:
-                string += colors.yellow+"Warning"+colors.END+" : Check_driver = Driver is not installed or not loaded\n"
-                break
+    string = colors.lblue+"Mellanox Devices"+colors.END+" : \n"
+    
+    for bus_id in Bus_id_list:
+        string += colors.violet+bus_id.name+colors.END+" "+bus_id.Chipset+" "
+        string += colors.violet+"FW"+colors.END+"#"+bus_id.FW_version+" "
+        string += colors.violet+"PCISlot"+colors.END+"#"+bus_id.Physical_slot+" "
+        string += colors.violet+"NUMAnode"+colors.END+"#"+bus_id.NUMA_node+" "
+        string += colors.violet+"Lw"+colors.END+"#"+bus_id.Link_width+" "
+        string += colors.violet+"Ls"+colors.END+"#"+bus_id.Link_speed+" " 
+        string += colors.violet+"P/N"+colors.END+"#"+bus_id.Part_number+" "
+        string += colors.violet+"PSID"+colors.END+"#"+bus_id.PSID+" "+bus_id.Interface_name+" "+bus_id.Network_if_name+" "
+        string += colors.violet+"Type"+colors.END+"#"+bus_id.Card_type+" "
+        string += colors.violet+"LnkStat"+colors.END+"#"+bus_id.Port_status+"\n"
+    
+    for bus_id in Bus_id_list:
+        if bus_id.flag:
+            string += colors.yellow+"Warning"+colors.END+" : Check_driver = Driver is not installed or not loaded\n"
+            break
+    
+    return string
         
-        return string
-            
         
-def log():
-    #logger.info("hey")
-    """lscpu_data = os_command("lscpu")
-    cpu_info = os_command("cat /proc/cpuinfo")
-    logger.info(cpu_info)
-    file = open('log.txt','w')
-    file.close()
-    with open("log.txt","a") as file:
-        file.write('command = "lspcu"\n')
-        file.write(lscpu_data+"\n\n")
-        file.write('command = "cat /proc/cpuinfo"\n')
-        file.write(cpu_info+"\n\n")
-        file.write('command = "lspci | grep -i mell"\n')
-        file.write(mellanox_devices+"\n\n")
-    logger.info("Collected detailed system info to <>.txt")"""
+def log(data):
+    print(data)
+    with open('log.txt','a') as file:
+        file.write('\n')
+        file.write(data)
+        file.write('\n') 
 
 
-class report:
-
-    def __init__(self):
-        self.Os_name = "None"
-        self.Os_kernel_version = "None"
-        self.Bios_release_date = "None"
-        self.Bios_version = "None"
-        self.processor_name = "None"
-        self.Socket_count = "None"
-        self.Core_count = "None"
-        self.Thread_count = "None"
-        self.Max_speed = "None"
-        self.NUMA_node =  "None"
+class server_details:
 
     def get_os_details(self):
         self.Os_name = os_command(GET_OS_NAME).strip().split('=')[-1]
@@ -487,7 +468,8 @@ class os_settings:
                 temp.Ring_buffer_size_rx = os_command(GET_RING_PARAMETERS_RX.format(bus_id.Network_if_name,'{print $2}')).split()
                 temp.Combined_queue = os_command(GET_COMBINED_QUEUE.format(bus_id.Network_if_name,'{print $2}')).split()
             name.append(temp)
-        #print(Old_adapter_os_setting_list,New_adapter_os_setting_list)
+       
+    
     def set_recommended_os_settings(self):
         os_command(SET_FIREWALL_OFF)
         os_command(SET_IRQBALANCE_OFF)
@@ -505,76 +487,72 @@ class os_settings:
         os_command(SET_IPV4_LOW_LATENCY.format(self.Recommended_Net_ipv4_tcp_low_latency))
         for bus_id in Bus_id_list:
             if bus_id.Network_if_name != 'Check_Driver': 
-                #print(bus_id.Network_if_name)
                 os_command(SET_LRO_ON.format(bus_id.Network_if_name))                  
                 os_command(SET_ADAPTIVE_TX_TXUSECS_TXFRAMES.format(bus_id.Network_if_name,self.Recommended_Tx_usecs)) 
-                #print(self.Recommended_Tx_usecs) 
                 os_command(SET_ADAPTIVE_RX_RXUSECS_RXFRAMES.format(bus_id.Network_if_name,self.Recommended_Rx_usecs))
-                #print(self.Recommended_Rx_usecs)
-                #os_command(SET_AFFINITY.format(bus_id.NUMA_node,bus_id.Network_if_name))
                 os_command(SET_RING_PARAMETERS_TX_RX.format(bus_id.Network_if_name,self.Recommended_Ring_buffer_size_tx,self.Recommended_Ring_buffer_size_rx ))
-                #print(self.Recommended_Ring_buffer_size_rx, self.Recommended_Ring_buffer_size_tx)
                 os_command(SET_COMBINED_QUEUE.format(bus_id.Network_if_name,self.Recommended_Combined_queue))
         
     def log_set_os_settings(self , new):
         global Old_adapter_os_setting_list
         global New_adapter_os_setting_list
         string = ''
+        note = "{}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]"
         if self.Firewall_status == new.Firewall_status:
             string += "    Firewall Status         :    "+self.Firewall_status+"\n"
         else:
-            string += "    Firewall Status         :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Firewall_status,self.Firewall_status,new.Firewall_status)+"\n"
+            string += "    Firewall Status         :    "+note.format(new.Firewall_status,self.Firewall_status,new.Firewall_status)+"\n"
         if self.IRQ_balance == new.IRQ_balance:
             string += "    IRQ Balance             :    "+self.IRQ_balance+"\n"
         else:
-            string += "    IRQ Balance             :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.IRQ_balance,self.IRQ_balance,new.IRQ_balance)+"\n"
+            string += "    IRQ Balance             :    "+note.format(new.IRQ_balance,self.IRQ_balance,new.IRQ_balance)+"\n"
         if self.Ipv4_tcp_timestamps == new.Ipv4_tcp_timestamps:
             string += "    TCP Timestamp           :    "+self.Ipv4_tcp_timestamps+"\n"
         else:
-            string += "    TCP Timestamp           :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Ipv4_tcp_timestamps,self.Ipv4_tcp_timestamps,new.Ipv4_tcp_timestamps)+"\n"
+            string += "    TCP Timestamp           :    "+note.format(new.Ipv4_tcp_timestamps,self.Ipv4_tcp_timestamps,new.Ipv4_tcp_timestamps)+"\n"
         if self.Ipv4_tcp_sack == new.Ipv4_tcp_sack:
             string += "    TCP Selective Acks      :    "+self.Ipv4_tcp_sack+"\n"
         else:
-            string += "    TCP Selective Acks      :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Ipv4_tcp_sack,self.Ipv4_tcp_sack,new.Ipv4_tcp_sack)+"\n"
+            string += "    TCP Selective Acks      :    "+note.format(new.Ipv4_tcp_sack,self.Ipv4_tcp_sack,new.Ipv4_tcp_sack)+"\n"
         if self.Netdv_max_backlog == new.Netdv_max_backlog:
             string += "    Proc Input Queue        :    "+self.Netdv_max_backlog+"\n"
         else:
-            string += "    Proc Input Queue        :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Netdv_max_backlog,self.Netdv_max_backlog,new.Netdv_max_backlog)+"\n"
+            string += "    Proc Input Queue        :    "+note.format(new.Netdv_max_backlog,self.Netdv_max_backlog,new.Netdv_max_backlog)+"\n"
         if self.Net_ipv4_tcp_low_latency == new.Net_ipv4_tcp_low_latency:
             string += "    TCP Low Latency         :    "+self.Net_ipv4_tcp_low_latency+"\n"
         else:
-            string += "    TCP Low Latency         :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Net_ipv4_tcp_low_latency,self.Net_ipv4_tcp_low_latency,new.Net_ipv4_tcp_low_latency)+"\n"
-        string += "    TCP Buffer Size:\n"
+            string += "    TCP Low Latency         :    "+note.format(new.Net_ipv4_tcp_low_latency,self.Net_ipv4_tcp_low_latency,new.Net_ipv4_tcp_low_latency)+"\n"
+        string += colors.lblue+"    TCP Buffer Size"+colors.END+":\n"
         if self.Core_rmem_max == new.Core_rmem_max:
             string += "        RMEM Max            :    "+self.Core_rmem_max+"\n"
         else:
-            string += "        RMEM Max            :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Core_rmem_max,self.Core_rmem_max,new.Core_rmem_max)+"\n"
+            string += "        RMEM Max            :    "+note.format(new.Core_rmem_max,self.Core_rmem_max,new.Core_rmem_max)+"\n"
         if self.Core_wmem_max == new.Core_wmem_max:
             string += "        WMEM Max            :    "+self.Core_wmem_max+"\n"
         else:
-            string += "        WMEM Max            :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Core_wmem_max,self.Core_wmem_max,new.Core_wmem_max)+"\n"
+            string += "        WMEM Max            :    "+note.format(new.Core_wmem_max,self.Core_wmem_max,new.Core_wmem_max)+"\n"
         if self.Core_rmem_default == new.Core_rmem_default:
             string += "        RMEM Default        :    "+self.Core_rmem_default+"\n"
         else:
-            string += "        RMEM Default        :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Core_rmem_default, self.Core_rmem_default,new.Core_rmem_default)+"\n"
+            string += "        RMEM Default        :    "+note.format(new.Core_rmem_default, self.Core_rmem_default,new.Core_rmem_default)+"\n"
         if self.Core_wmem_drefault == new.Core_wmem_drefault:
             string += "        WMEM Default        :    "+self.Core_wmem_drefault+"\n"
         else:
-            string += "        WMEM Default        :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Core_wmem_drefault,self.Core_wmem_drefault,new.Core_wmem_drefault)+"\n"
+            string += "        WMEM Default        :    "+note.format(new.Core_wmem_drefault,self.Core_wmem_drefault,new.Core_wmem_drefault)+"\n"
         if self.Core_optmem_max == new.Core_optmem_max:
             string += "        OPTMEM Max          :    "+self.Core_optmem_max+"\n"
         else:   
-            string += "        OPTMEM Max          :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Core_optmem_max,self.Core_optmem_max,new.Core_optmem_max)+"\n"
-        string += "    TCP Memory Size:\n"
+            string += "        OPTMEM Max          :    "+note.format(new.Core_optmem_max,self.Core_optmem_max,new.Core_optmem_max)+"\n"
+        string += colors.lblue+"    TCP Memory Size"+colors.END+":\n"
         if self.Net_ipv4_tcp_rmem == new.Net_ipv4_tcp_rmem:
             string += "        TCP RMEM            :    "+self.Net_ipv4_tcp_rmem+"\n"
         else:
-            string += "        TCP RMEM            :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Net_ipv4_tcp_rmem,self.Net_ipv4_tcp_rmem,new.Net_ipv4_tcp_rmem)+"\n"
+            string += "        TCP RMEM            :    "+note.format(new.Net_ipv4_tcp_rmem,self.Net_ipv4_tcp_rmem,new.Net_ipv4_tcp_rmem)+"\n"
         if self.Net_ipv4_tcp_wmem == new.Net_ipv4_tcp_wmem:
             string += "        TCP WMEM            :    "+self.Net_ipv4_tcp_wmem+"\n"
         else:  
-            string += "        TCP WMEM            :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(new.Net_ipv4_tcp_wmem,self.Net_ipv4_tcp_wmem,new.Net_ipv4_tcp_wmem)+"\n"
-
+            string += "        TCP WMEM            :    "+note.format(new.Net_ipv4_tcp_wmem,self.Net_ipv4_tcp_wmem,new.Net_ipv4_tcp_wmem)+"\n"
+        string += colors.lblue+"Mellanox Adapter OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] \n"
         for index in range(len(Bus_id_list)):
             if Bus_id_list[index].Network_if_name == 'Check_Driver': 
                 string += "    "+Bus_id_list[index].name+"    :   Check_Driver\n"
@@ -583,99 +561,99 @@ class os_settings:
                 if Old_adapter_os_setting_list[index].LRO_ON == New_adapter_os_setting_list[index].LRO_ON:
                     string += "        LRO                 :    "+Old_adapter_os_setting_list[index].LRO_ON+"\n"
                 else:
-                    string += "        LRO                 :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(New_adapter_os_setting_list[index].LRO_ON, Old_adapter_os_setting_list[index].LRO_ON , New_adapter_os_setting_list[index].LRO_ON)+"\n"    
+                    string += "        LRO                 :    "+note.format(New_adapter_os_setting_list[index].LRO_ON, Old_adapter_os_setting_list[index].LRO_ON , New_adapter_os_setting_list[index].LRO_ON)+"\n"    
 
                 if Old_adapter_os_setting_list[index].Rx_gro_hw == New_adapter_os_setting_list[index].Rx_gro_hw:
                     string += "        GRO                 :    "+Old_adapter_os_setting_list[index].Rx_gro_hw+"\n"
                 else:
-                    string += "        GRO                 :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(New_adapter_os_setting_list[index].Rx_gro_hw , Old_adapter_os_setting_list[index].Rx_gro_hw , New_adapter_os_setting_list[index].Rx_gro_hw)+"\n"
+                    string += "        GRO                 :    "+note.format(New_adapter_os_setting_list[index].Rx_gro_hw , Old_adapter_os_setting_list[index].Rx_gro_hw , New_adapter_os_setting_list[index].Rx_gro_hw)+"\n"
                 if Old_adapter_os_setting_list[index].Rx_usecs == New_adapter_os_setting_list[index].Rx_usecs:
                     string += "        Adaptive Rx         :    "+Old_adapter_os_setting_list[index].Rx_usecs+"\n"
                 else:
-                    string += "        Adaptive Rx         :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format( New_adapter_os_setting_list[index].Rx_usecs, Old_adapter_os_setting_list[index].Rx_usecs, New_adapter_os_setting_list[index].Rx_usecs)+"\n"
+                    string += "        Adaptive Rx         :    "+note.format( New_adapter_os_setting_list[index].Rx_usecs, Old_adapter_os_setting_list[index].Rx_usecs, New_adapter_os_setting_list[index].Rx_usecs)+"\n"
                 if Old_adapter_os_setting_list[index].Tx_usecs == New_adapter_os_setting_list[index].Tx_usecs:
                     string += "        Adaptive Tx         :    "+Old_adapter_os_setting_list[index].Tx_usecs+"\n"
                 else:
-                    string += "        Adaptive Tx         :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(New_adapter_os_setting_list[index].Tx_usecs , Old_adapter_os_setting_list[index].Tx_usecs, New_adapter_os_setting_list[index].Tx_usecs)+"\n"
+                    string += "        Adaptive Tx         :    "+note.format(New_adapter_os_setting_list[index].Tx_usecs , Old_adapter_os_setting_list[index].Tx_usecs, New_adapter_os_setting_list[index].Tx_usecs)+"\n"
                 if Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1] == New_adapter_os_setting_list[index].Ring_buffer_size_rx[1]:
                     string += "        Ring_buffer_RX      :    "+Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1]+"\n"
                 else:
-                    string += "        Ring_buffer_RX      :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(New_adapter_os_setting_list[index].Ring_buffer_size_rx[1] , Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1], New_adapter_os_setting_list[index].Ring_buffer_size_rx[1])+"\n"
+                    string += "        Ring_buffer_RX      :    "+note.format(New_adapter_os_setting_list[index].Ring_buffer_size_rx[1] , Old_adapter_os_setting_list[index].Ring_buffer_size_rx[1], New_adapter_os_setting_list[index].Ring_buffer_size_rx[1])+"\n"
                 if Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1] == New_adapter_os_setting_list[index].Ring_buffer_size_tx[1]:
                     string += "        Ring_buffer_TX      :    "+Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1]+"\n"
                 else:
-                    string += "        Ring_buffer_TX      :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(New_adapter_os_setting_list[index].Ring_buffer_size_tx[1] , Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1],New_adapter_os_setting_list[index].Ring_buffer_size_tx[1])+"\n"
+                    string += "        Ring_buffer_TX      :    "+note.format(New_adapter_os_setting_list[index].Ring_buffer_size_tx[1] , Old_adapter_os_setting_list[index].Ring_buffer_size_tx[1],New_adapter_os_setting_list[index].Ring_buffer_size_tx[1])+"\n"
                 if Old_adapter_os_setting_list[index].Combined_queue[1] == New_adapter_os_setting_list[index].Combined_queue[1]:
                     string += "        Combined queue      :    "+Old_adapter_os_setting_list[index].Combined_queue[1]+"\n"
                 else:
-                    string += "        Combined queue      :    {}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]".format(New_adapter_os_setting_list[index].Combined_queue[1] , Old_adapter_os_setting_list[index].Combined_queue[1], New_adapter_os_setting_list[index].Combined_queue[1])+"\n"
-                #print(Old_adapter_os_setting_list[index].Combined_queue,New_adapter_os_setting_list[index].Combined_queue)
+                    string += "        Combined queue      :    "+note.format(New_adapter_os_setting_list[index].Combined_queue[1] , Old_adapter_os_setting_list[index].Combined_queue[1], New_adapter_os_setting_list[index].Combined_queue[1])+"\n"
         return string
         
+        
     def log_report_os_settings(self):
-
         string = ''
+        recommended = "  [ "+colors.yellow+"Recommended"+colors.END+" : "+colors.green
         if self.Firewall_status == self.Recommended_Firewall_status: 
             string += "    Firewall Status          :    "+self.Firewall_status+"\n"
         else:
-            string += "    Firewall Status          :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Firewall_status,self.Recommended_Firewall_status)+"\n"
+            string += "    Firewall Status          :    "+self.Firewall_status+recommended+self.Recommended_Firewall_status+colors.END+" ]\n"
         if self.IRQ_balance == self.Recommended_IRQ_balance:
             string += "    IRQ Balance              :    "+self.IRQ_balance+"\n"
         else:
-            string += "    IRQ Balance              :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.IRQ_balance,self.Recommended_IRQ_balance)+"\n"
+            string += "    IRQ Balance              :    "+self.IRQ_balance+recommended+self.Recommended_IRQ_balance+colors.END+" ]\n"
         if self.Ipv4_tcp_timestamps == self.Recommended_Ipv4_tcp_timestamps:
             string += "    TCP Timestamp            :    "+self.Ipv4_tcp_timestamps+"\n"
         else:
-            string += "    TCP Timestamp            :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Ipv4_tcp_timestamps,self.Recommended_Ipv4_tcp_timestamps)+"\n"
+            string += "    TCP Timestamp            :    "+self.Ipv4_tcp_timestamps+recommended+self.Recommended_Ipv4_tcp_timestamps+colors.END+" ]\n"
         if self.Ipv4_tcp_sack == self.Recommended_Ipv4_tcp_sack:
             string += "    TCP Selective Acks       :    "+self.Ipv4_tcp_sack+"\n"
         else:
-            string += "    TCP Selective Acks       :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Ipv4_tcp_sack,self.Recommended_Ipv4_tcp_sack)+"\n"
+            string += "    TCP Selective Acks       :    "+self.Ipv4_tcp_sack+recommended+self.Recommended_Ipv4_tcp_sack+colors.END+" ]\n"
         if self.Netdv_max_backlog == self.Recommended_Netdv_max_backlog:
             string += "    Proc Input Queue         :    "+self.Netdv_max_backlog+"\n"
         else:
-            string += "    Proc Input Queue         :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Netdv_max_backlog,self.Recommended_Netdv_max_backlog)+"\n"
+            string += "    Proc Input Queue         :    "+self.Netdv_max_backlog+recommended+self.Recommended_Netdv_max_backlog+colors.END+" ]\n"
         if self.Net_ipv4_tcp_low_latency == self.Recommended_Net_ipv4_tcp_low_latency:
             string += "    TCP IPv4 Low Latency     :    "+self.Net_ipv4_tcp_low_latency+"\n"
         else:
-            string += "    TCP IPv4 Low Latency     :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Net_ipv4_tcp_low_latency,self.Recommended_Net_ipv4_tcp_low_latency)+"\n"
-        string += "\033[94m    TCP Buffer Size:\033[0m\n"
+            string += "    TCP IPv4 Low Latency     :    "+self.Net_ipv4_tcp_low_latency+recommended+self.Recommended_Net_ipv4_tcp_low_latency+colors.END+" ]\n"
+        string += colors.lblue+"    TCP Buffer Size"+colors.END+":\n"
         if self.Core_rmem_max == self.Recommended_Core_rmem_max:
             string += "        Core RMEM Max        :    "+self.Core_rmem_max+"\n"
         else:
-            string += "        Core RMEM Max        :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Core_rmem_max,self.Recommended_Core_rmem_max)+"\n"
+            string += "        Core RMEM Max        :    "+self.Core_rmem_max+recommended+self.Recommended_Core_rmem_max+colors.END+" ]\n"
         
         if self.Core_wmem_max == self.Recommended_Core_wmem_max:
             string += "        Core WMEM Max        :    "+self.Core_wmem_max+"\n"
         else:
-            string += "        Core WMEM Max        :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Core_wmem_max,self.Recommended_Core_wmem_max)+"\n"
+            string += "        Core WMEM Max        :    "+self.Core_wmem_max+recommended+self.Recommended_Core_wmem_max+colors.END+" ]\n"
         
         if self.Core_rmem_default == self.Recommended_Core_rmem_default:
             string += "        Core RMEM Default    :    "+self.Core_rmem_default+"\n"
         else: 
-            string += "        Core RMEM Default    :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Core_rmem_default,self.Recommended_Core_rmem_default)+"\n"
+            string += "        Core RMEM Default    :    "+self.Core_rmem_default+recommended+self.Recommended_Core_rmem_default+colors.END+" ]\n"
         
         if self.Core_wmem_drefault == self.Recommended_Core_wmem_drefault:
             string += "        Core WMEM Default    :    "+self.Core_wmem_drefault+"\n"
         else:
-            string += "        Core WMEM Default    :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Core_wmem_drefault,self.Recommended_Core_wmem_drefault)+"\n"
+            string += "        Core WMEM Default    :    "+self.Core_wmem_drefault+recommended+self.Recommended_Core_wmem_drefault+colors.END+" ]\n"
         
         if self.Core_optmem_max == self.Recommended_Core_optmem_max:
             string += "        Core OPTMEM Max      :    "+self.Core_optmem_max+"\n"
         else:
-            string += "        Core OPTMEM Max      :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Core_optmem_max, self.Recommended_Core_optmem_max)+"\n"
+            string += "        Core OPTMEM Max      :    "+self.Core_optmem_max+recommended+self.Recommended_Core_optmem_max+colors.END+" ]\n"
             
-        string += "\033[94m    TCP Memory Size:\033[0m\n"
+        string += colors.lblue+"    TCP Memory Size"+colors.END+":\n"
         if self.Net_ipv4_tcp_rmem == self.Recommended_Net_ipv4_tcp_rmem:
             string += "        IPv4 RMEM            :    "+self.Net_ipv4_tcp_rmem+"\n"
         else:
-            string += "        IPv4 RMEM            :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Net_ipv4_tcp_rmem,self.Recommended_Net_ipv4_tcp_rmem)+"\n"
+            string += "        IPv4 RMEM            :    "+self.Net_ipv4_tcp_rmem+recommended+self.Recommended_Net_ipv4_tcp_rmem+colors.END+" ]\n"
         
         if self.Net_ipv4_tcp_wmem == self.Recommended_Net_ipv4_tcp_wmem:
             string += "        IPv4 WMEM            :    "+self.Net_ipv4_tcp_wmem+"\n"
         else:
-            string += "        IPv4 WMEM            :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(self.Net_ipv4_tcp_wmem,self.Recommended_Net_ipv4_tcp_wmem)+"\n"
-        string += "\033[94mMellanox Adapter OS Settings \033[0m[\033[33m HPE Recommended \033[0m] : \n"
+            string += "        IPv4 WMEM            :    "+self.Net_ipv4_tcp_wmem+recommended+elf.Recommended_Net_ipv4_tcp_wmem+colors.END+" ]\n"
+        string += colors.lblue+"Mellanox Adapter OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] \n"
         for index in range(len(Bus_id_list)):
             if Bus_id_list[index].Network_if_name == 'Check_Driver': 
                 string += "    "+Bus_id_list[index].name+"    :   Check_Driver"+"\n"
@@ -685,35 +663,39 @@ class os_settings:
                 if Adapter_os_setting_list[index].LRO_ON == self.Recommended_LRO_ON:
                     string += "        LRO                  :    "+Adapter_os_setting_list[index].LRO_ON+"\n"
                 else:
-                    string += "        LRO                  :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(Adapter_os_setting_list[index].LRO_ON , self.Recommended_LRO_ON)+"\n"
+                    string += "        LRO                  :    "+Adapter_os_setting_list[index].LRO_ON+recommended+self.Recommended_LRO_ON+colors.END+" ]\n"
                 
                 if Adapter_os_setting_list[index].Rx_gro_hw == self.Recommended_Rx_gro_hw:
                     string += "        GRO                  :    "+Adapter_os_setting_list[index].Rx_gro_hw+"\n"
                 else:
-                    string += "        GRO                  :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(Adapter_os_setting_list[index].Rx_gro_hw , self.Recommended_Rx_gro_hw)+"\n"
+                    string += "        GRO                  :    "+Adapter_os_setting_list[index].Rx_gro_hw+recommended+self.Recommended_Rx_gro_hw+colors.END+" ]\n"
                 if Adapter_os_setting_list[index].Rx_usecs == self.Recommended_Rx_usecs:
                     string += "        Adaptive Rx          :    "+Adapter_os_setting_list[index].Rx_usecs+"\n"
                 else:
-                    string += "        Adaptive Rx          :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(Adapter_os_setting_list[index].Rx_usecs, self.Recommended_Rx_usecs)+"\n"
+                    string += "        Adaptive Rx          :    "+Adapter_os_setting_list[index].Rx_usecs+recommended+self.Recommended_Rx_usecs+colors.END+" ]\n"
                 if Adapter_os_setting_list[index].Tx_usecs == self.Recommended_Tx_usecs:
                     string += "        Adaptive Tx          :    "+Adapter_os_setting_list[index].Tx_usecs+"\n"
                 else:
-                    string += "        Adaptive Tx          :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(Adapter_os_setting_list[index].Tx_usecs, self.Recommended_Tx_usecs)+"\n"
+                    string += "        Adaptive Tx          :    "+Adapter_os_setting_list[index].Tx_usecs+recommended+ self.Recommended_Tx_usecs+colors.END+" ]\n"
                 if Adapter_os_setting_list[index].Ring_buffer_size_rx[1] == self.Recommended_Ring_buffer_size_rx:
                     string += "        Ring_buffer_RX       :    "+Adapter_os_setting_list[index].Ring_buffer_size_rx[1]+"\n"
                 else:
-                    string += "        Ring_buffer_RX       :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(Adapter_os_setting_list[index].Ring_buffer_size_rx[1], self.Recommended_Ring_buffer_size_rx)+"\n"
+                    string += "        Ring_buffer_RX       :    "+Adapter_os_setting_list[index].Ring_buffer_size_rx[1]+recommended+ self.Recommended_Ring_buffer_size_rx+colors.END+" ]\n"
                 if Adapter_os_setting_list[index].Ring_buffer_size_tx[1] == self.Recommended_Ring_buffer_size_tx:
                     string += "        Ring_buffer_TX       :    "+Adapter_os_setting_list[index].Ring_buffer_size_tx[1]+"\n"
                 else:
-                    string += "        Ring_buffer_TX       :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(Adapter_os_setting_list[index].Ring_buffer_size_tx[1],self.Recommended_Ring_buffer_size_tx)+"\n"
+                    string += "        Ring_buffer_TX       :    "+Adapter_os_setting_list[index].Ring_buffer_size_tx[1]+recommended+self.Recommended_Ring_buffer_size_tx+colors.END+" ]\n"
                 if Adapter_os_setting_list[index].Combined_queue[1] == self.Recommended_Combined_queue:
                     string += "        Combined queue       :    "+Adapter_os_setting_list[index].Combined_queue[1]+"\n"
                 else:
-                    string += "        Combined queue       :    {}    [\033[33m Recommended\033[0m :\033[32m {}\033[0m ]".format(Adapter_os_setting_list[index].Combined_queue[1], self.Recommended_Combined_queue)+"\n"
- 
+                    string += "        Combined queue       :    "+Adapter_os_setting_list[index].Combined_queue[1]+recommended+ self.Recommended_Combined_queue+colors.END+" ]\n"
         return string
         
+
+class bios_settings:
+    def __init__(self):
+        pass
+    
 
 def add_options (parser):
     parser.add_option("-h","--help",  help=help_message , action="store_true",default = False)
@@ -744,7 +726,43 @@ def initialize():
     logger.addHandler(console_handler)
     return options , logger
 
+def Generate_report():
+    global Adapter_os_setting_list
+    Server = server_details()
+    Server_manufacturer_name = os_command(GET_SERVER_MANUFACTURER_NAME).strip()
+    Sever_product_name = os_command(GET_SERVER_PRODUCT_NAME).split(':')[-1].strip()  
+    Os_details = Server.get_os_details()
+    Bios_details = Server.get_bios_details()
+    Processor_details = Server.get_processor_details()
+    Memory_details = Server.get_memory_details()
+    Os_settings = os_settings()
+    Os_settings.get_os_settings(Adapter_os_setting_list)
+    Os_settings_details = Os_settings.log_report_os_settings()
+    result = colors.bblue+"Collecting {} Processor, BIOS, OS and Mellanox Adapter report".format(Server_manufacturer_name+" "+Sever_product_name)+colors.END+"\n"
+    result += Os_details
+    result += Bios_details
+    result += Processor_details
+    result += Memory_details
+    result += Mlnx_device_details
+    result += colors.lblue+"OS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
+    result += Os_settings_details
+    return result
 
+
+def HPE_recommended_os_settings():
+    global Old_adapter_os_setting_list
+    global New_adapter_os_setting_list
+    Old_os_settings = os_settings()
+    Old_os_settings.get_os_settings(Old_adapter_os_setting_list)
+    Old_os_settings.set_recommended_os_settings()
+    New_os_settings = os_settings()
+    New_os_settings.get_os_settings(New_adapter_os_setting_list)
+    result = colors.lblue+"OS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
+    result += Old_os_settings.log_set_os_settings(New_os_settings)
+    return result
+
+def HPE_recommended_bios_settings():
+    pass
 
 if __name__=='__main__':
  
@@ -754,43 +772,25 @@ if __name__=='__main__':
     Adapter_os_setting_list = []
     parser = OptionParser(add_help_option=False)
     options , logger = initialize()
-  
+    file = open('log.txt','w')
+    file.write("")
+    file.close()
+    
     if options.help:
         logger.info(help_message)
-       
         sys.exit()
 
-    mlnx = mlnx_devices()
-    Mlnx_device_details = mlnx.get_mlnx_device_details()
-    
-    
+    Mlnx_device_details = get_mlnx_device_details()
+
     if options.report:
-        report = report()
-        Server_manufacturer_name = os_command(GET_SERVER_MANUFACTURER_NAME).strip()
-        Sever_product_name = os_command(GET_SERVER_PRODUCT_NAME).split(':')[-1].strip()
-        print(colors.bblue+"Collecting {} Processor, BIOS, OS and Mellanox Adapter Report".format(Server_manufacturer_name+" "+Sever_product_name)+colors.END)
-        Os_details = report.get_os_details()
-        print(Os_details)
-        Bios_details = report.get_bios_details()
-        print(Bios_details)
-        Processor_details = report.get_processor_details()
-        print(Processor_details)
-        Memory_details = report.get_memory_details()
-        print(Memory_details)
-        print(Mlnx_device_details)
-        
-        Os_settings = os_settings()
-        Os_settings.get_os_settings(Adapter_os_setting_list)
-        print(colors.lblue+"OS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :")
-        Report_os_settings_details = Os_settings.log_report_os_settings()
-        print(Report_os_settings_details)
+        report = Generate_report()
+        log(report)
         
 
     elif options.os:
-        Old_os_settings = os_settings()
-        Old_os_settings.get_os_settings(Old_adapter_os_setting_list)
-        Old_os_settings.set_recommended_os_settings()
-        New_os_settings = os_settings()
-        New_os_settings.get_os_settings(New_adapter_os_setting_list)
-        Set_os_settings_details = Old_os_settings.log_set_os_settings(New_os_settings)
-        print(Set_os_settings_details)
+        Os_settings_details = HPE_recommended_os_settings()
+        log(Os_settings_details)
+    
+    else:
+        Os_settings_details = HPE_recommended_os_settings()
+        log(Os_settings_details)
