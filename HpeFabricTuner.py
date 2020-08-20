@@ -246,62 +246,82 @@ def conversion(Total_memory , Dimm_size):
     Dimm_size = str(Dimm_size)+" "+add_on
     return Total_memory , Dimm_size
 
-
-def get_Bus_id_list():
-    
-    mellanox_devices = os_command(GET_MLNX_DEVICES)
-    mellanox_devices_list = mellanox_devices.strip().split('\n')
-    temp_list = [ item.split()[0] for item in mellanox_devices_list]
-    temp = adapter_details()
-    temp.name = temp_list[0]
-    Bus_id_list.append(temp)
-    for elem in range(1,len(temp_list)):
-        if temp_list[elem][:2]!=temp_list[elem-1][:2]:
-            temp = adapter_details()
-            temp.name = temp_list[elem]
-            Bus_id_list.append(temp)
+class mlnx_devices:
+        
+    def get_mlnx_device_details(self):
+        
+        mellanox_devices = os_command(GET_MLNX_DEVICES)
+        mellanox_devices_list = mellanox_devices.strip().split('\n')
+        temp_list = [ item.split()[0] for item in mellanox_devices_list]
+        temp = adapter_details()
+        temp.name = temp_list[0]
+        Bus_id_list.append(temp)
+        for elem in range(1,len(temp_list)):
+            if temp_list[elem][:2]!=temp_list[elem-1][:2]:
+                temp = adapter_details()
+                temp.name = temp_list[elem]
+                Bus_id_list.append(temp)
             
-
-
-def get_mlnx_device_details():
-
-    for bus_id in Bus_id_list:
-        bus_id.Physical_slot = os_command(GET_PCI_SLOT.format(bus_id.name,'{print $3}')).strip()
-        
-        if bus_id.Physical_slot == '':
-            bus_id.Physical_slot = 'LOM'
-        bus_id.Part_number = os_command(GET_PART_NUMBER.format(bus_id.name,'{print $4}')).strip()
-        bus_id.Product_name = os_command(GET_PRODUCT_NAME.format(bus_id.name)).strip().split(':')[-1]
-        bus_id.Link_speed = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $3}')).strip().strip(',')
-        bus_id.Link_width = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $5}')).strip().strip(',')
-        bus_id.NUMA_node = os_command(GET_NUMA_NODE.format(bus_id.name,'{print $3}')).strip()
-        bus_id.Chipset = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()[-1]
-        
-        if 'Connect' not in bus_id.Chipset:
-            temp = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()
-            bus_id.Chipset = temp[-2]+" "+temp[-1]
-        bus_id.Interface_name = os_command(GET_INTERFACE_NAME.format(bus_id.name)).strip().split('/')[-1]
-        
-        
-        if bus_id.Interface_name=='':
-            bus_id.Interface_name = 'Check_Driver'
-        bus_id.Network_if_name = os_command(GET_NW_INTERFCAE_NAME.format(bus_id.name)).strip().split('/')[-1]
-        
-        if bus_id.Network_if_name =='':
-            bus_id.Network_if_name = 'Check_Driver'
-            bus_id.FW_version = 'Check_Driver'
-            bus_id.PSID = 'Check_Driver'
-            bus_id.Port_status = 'Check_Driver'
-            bus_id.flag = True
-        else:
-            bus_id.FW_version = os_command(GET_FW_VERSION.format(bus_id.Network_if_name,'{print $2}')).strip()
-            bus_id.PSID = os_command(GET_PSID.format(bus_id.Network_if_name,'{print $3}')).replace('(','').replace(')','').strip()
-            bus_id.Port_status = os_command(GET_CARD_STATUS.format(bus_id.Network_if_name,'{print $3}')).strip()
-            if bus_id.Port_status == 'yes':
-                bus_id.Port_status = 'Up'
+        for bus_id in Bus_id_list:
+            bus_id.Physical_slot = os_command(GET_PCI_SLOT.format(bus_id.name,'{print $3}')).strip()
+            
+            if bus_id.Physical_slot == '':
+                bus_id.Physical_slot = 'LOM'
+            bus_id.Part_number = os_command(GET_PART_NUMBER.format(bus_id.name,'{print $4}')).strip()
+            bus_id.Product_name = os_command(GET_PRODUCT_NAME.format(bus_id.name)).strip().split(':')[-1]
+            bus_id.Link_speed = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $3}')).strip().strip(',')
+            bus_id.Link_width = os_command(GET_LINK_WIDTH.format(bus_id.name,'{print $5}')).strip().strip(',')
+            bus_id.NUMA_node = os_command(GET_NUMA_NODE.format(bus_id.name,'{print $3}')).strip()
+            bus_id.Chipset = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()[-1]
+            
+            if 'Connect' not in bus_id.Chipset:
+                temp = os_command(GET_CHIPSET.format(bus_id.name)).split('\n')[0].split()
+                bus_id.Chipset = temp[-2]+" "+temp[-1]
+            bus_id.Interface_name = os_command(GET_INTERFACE_NAME.format(bus_id.name)).strip().split('/')[-1]
+            
+            
+            if bus_id.Interface_name=='':
+                bus_id.Interface_name = 'Check_Driver'
+            bus_id.Network_if_name = os_command(GET_NW_INTERFCAE_NAME.format(bus_id.name)).strip().split('/')[-1]
+            
+            if bus_id.Network_if_name =='':
+                bus_id.Network_if_name = 'Check_Driver'
+                bus_id.FW_version = 'Check_Driver'
+                bus_id.PSID = 'Check_Driver'
+                bus_id.Port_status = 'Check_Driver'
+                bus_id.flag = True
             else:
-                bus_id.Port_status = 'Down' 
-        bus_id.Card_type = ' '.join(os_command(GET_CARD_TYPE.format(bus_id.name)).split()[1:3]).strip(':')
+                bus_id.FW_version = os_command(GET_FW_VERSION.format(bus_id.Network_if_name,'{print $2}')).strip()
+                bus_id.PSID = os_command(GET_PSID.format(bus_id.Network_if_name,'{print $3}')).replace('(','').replace(')','').strip()
+                bus_id.Port_status = os_command(GET_CARD_STATUS.format(bus_id.Network_if_name,'{print $3}')).strip()
+                if bus_id.Port_status == 'yes':
+                    bus_id.Port_status = 'Up'
+                else:
+                    bus_id.Port_status = 'Down' 
+            bus_id.Card_type = ' '.join(os_command(GET_CARD_TYPE.format(bus_id.name)).split()[1:3]).strip(':')
+            
+            
+        string = colors.lblue+"Mellanox Devices"+colors.END+" : \n"
+        
+        for bus_id in Bus_id_list:
+            string += colors.violet+bus_id.name+colors.END+" "+bus_id.Chipset+" "
+            string += colors.violet+"FW"+colors.END+"#"+bus_id.FW_version+" "
+            string += colors.violet+"PCISlot"+colors.END+"#"+bus_id.Physical_slot+" "
+            string += colors.violet+"NUMAnode"+colors.END+"#"+bus_id.NUMA_node+" "
+            string += colors.violet+"Lw"+colors.END+"#"+bus_id.Link_width+" "
+            string += colors.violet+"Ls"+colors.END+"#"+bus_id.Link_speed+" " 
+            string += colors.violet+"P/N"+colors.END+"#"+bus_id.Part_number+" "
+            string += colors.violet+"PSID"+colors.END+"#"+bus_id.PSID+" "+bus_id.Interface_name+" "+bus_id.Network_if_name+" "
+            string += colors.violet+"Type"+colors.END+"#"+bus_id.Card_type+" "
+            string += colors.violet+"LnkStat"+colors.END+"#"+bus_id.Port_status+"\n"
+        
+        for bus_id in Bus_id_list:
+            if bus_id.flag:
+                string += colors.yellow+"Warning"+colors.END+" : Check_driver = Driver is not installed or not loaded\n"
+                break
+        
+        return string
+            
         
 def log():
     #logger.info("hey")
@@ -322,37 +342,50 @@ def log():
 
 class report:
 
+    def __init__(self):
+        self.Os_name = "None"
+        self.Os_kernel_version = "None"
+        self.Bios_release_date = "None"
+        self.Bios_version = "None"
+        self.processor_name = "None"
+        self.Socket_count = "None"
+        self.Core_count = "None"
+        self.Thread_count = "None"
+        self.Max_speed = "None"
+        self.NUMA_node =  "None"
 
     def get_os_details(self):
         self.Os_name = os_command(GET_OS_NAME).strip().split('=')[-1]
         self.Os_kernel_version = os_command(GET_KERNAL_VERSION).strip()
 
-
-    def log_os_details(self):
-        logger.info("\n\033[94mOS :\033[0m {} Kernel version is {} \n".format(self.Os_name,self.Os_kernel_version))
+        string = colors.lblue+"OS : "+colors.END+self.Os_name
+        string += "Kernel version is "+self.Os_kernel_version+"\n"
+        return string
 
 
     def get_bios_details(self):
         self.Bios_release_date = os_command(GET_BIOS_RELEASE_DATE).strip()
         self.Bios_version =  os_command(GET_BIOS_VERSION).strip()
         
-
-    def log_bios_details(self):
-        logger.info("\033[94mBios :\033[0m {} {} \n".format(self.Bios_version,self.Bios_release_date))
-
+        string = colors.lblue+"Bios"+colors.END+" : "+self.Bios_version+" "
+        string += self.Bios_release_date+"\n"
+        return string
         
     def get_processor_details(self):
         self.processor_name = os_command(GET_PROCESSOR_NAME).split('\n')[0].split(':')[-1]
-        self.Socket_count = len(os_command(GET_SOCKETS_COUNT).strip().split('\n'))
+        self.Socket_count = str(len(os_command(GET_SOCKETS_COUNT).strip().split('\n')))
         self.Core_count = os_command(GET_CORE_COUNT).split('\n')[0].split(':')[-1].strip()
         self.Thread_count = os_command(GET_THREAD_COUNT).split('\n')[0].split(':')[-1].strip()
         self.Max_speed = os_command(GET_MAX_SPEED).split('\n')[0].split(':')[-1].strip()
         self.NUMA_node =  os_command(GET_NUMA_NODE_COUNT).strip().split('\n')[0].split(':')[-1].strip()
         
-
-
-    def log_processor_details(self):
-        logger.info("\033[94mProcessor :\033[0m {}, Socket#{}, Core#{} ,Thread#{}, MaxSpeed#{}, NUMA_NODE(S)#{} \n".format(self.processor_name,self.Socket_count,self.Core_count,self.Thread_count,self.Max_speed,self.NUMA_node))
+        string = colors.lblue+"Processor"+colors.END+" : "+self.processor_name+", "
+        string += colors.violet+"Socket"+colors.END+"#"+self.Socket_count+", "
+        string += colors.violet+"Core"+colors.END+"#"+self.Core_count+", "
+        string += colors.violet+"Thread"+colors.END+"#"+self.Thread_count+", "
+        string += colors.violet+"MaxSpeed"+colors.END+"#"+self.Max_speed+", "
+        string += colors.violet+"NUMA_NODE(S)"+colors.END+"#"+self.NUMA_node+" \n"
+        return string  
 
 
     def get_memory_details(self):
@@ -371,7 +404,7 @@ class report:
                 
         self.Total_memory = os_command(GET_TOTAL_MEMORY).strip()
         self.Total_memory, self.Dimm_size = conversion(self.Total_memory,self.Dimm_size)
-        self.No_of_active_dimms = count
+        self.No_of_active_dimms = str(count)
         
         for item in os_command(GET_MEMORY_SPEED).strip().split('\n'):
             if 'Unknown' not in item:
@@ -383,20 +416,14 @@ class report:
                 self.Dimm_type = item.strip().split(':')[-1]
                 break
 
-
-    def log_memory_details(self):    
-        logger.info("\033[94mMemory :\033[0m Total Memory#{}, PerDIMM#{} {} {}, Populated DIMM's#{}\n".format(self.Total_memory,self.Dimm_size,self.Dimm_type,self.Dimm_speed,self.No_of_active_dimms))
+        string = colors.lblue+"Memory"+colors.END+" : "
+        string += colors.violet+"Total Memory"+colors.END+"#"+self.Total_memory+", "
+        string += colors.violet+"PerDIMM"+colors.END+"#"+self.Dimm_size+" "+self.Dimm_type+" "+self.Dimm_speed+", "
+        string +=  colors.violet+"Populated DIMM's"+colors.END+"#"+self.No_of_active_dimms+"\n"
+        return string
 
     
-    def log_mlnx_device_details(self):
-        logger.info("\033[94mMellanox Devices :\033[0m")
-        for bus_id in Bus_id_list:
-            logger.info("{} {} \033[35mFW\033[0m#{} \033[35mPCISlot\033[0m#{} \033[35mNUMAnode\033[0m#{} \033[35mLw\033[0m#{} \033[35mLs\033[0m#{} \033[35mP/N\033[0m#{} \033[35mPSID\033[0m#{} {} {} \033[35mType\033[0m#{} \033[35mLnkStat\033[0m#{}".format(bus_id.name,bus_id.Chipset,bus_id.FW_version,bus_id.Physical_slot,bus_id.NUMA_node,bus_id.Link_width,bus_id.Link_speed,bus_id.Part_number,bus_id.PSID,bus_id.Interface_name,bus_id.Network_if_name,bus_id.Card_type,bus_id.Port_status))
-        for bus_id in Bus_id_list:
-            if bus_id.flag:
-                logger.warning("\033[33mWarning\033[0m : Check_driver = Driver is not installed or not loaded")
-                break
-        print("")
+
 
 class os_settings:
 
@@ -733,28 +760,30 @@ if __name__=='__main__':
        
         sys.exit()
 
-    get_Bus_id_list()
-    get_mlnx_device_details()   
+    mlnx = mlnx_devices()
+    Mlnx_device_details = mlnx.get_mlnx_device_details()
+    
     
     if options.report:
+        report = report()
         Server_manufacturer_name = os_command(GET_SERVER_MANUFACTURER_NAME).strip()
         Sever_product_name = os_command(GET_SERVER_PRODUCT_NAME).split(':')[-1].strip()
-        print("\033[1;94mCollecting {} Processor, BIOS, OS and Mellanox Adapter Report.\033[0m".format(Server_manufacturer_name+" "+Sever_product_name))
-        report = report()
-        report.get_os_details()
-        report.log_os_details()
-        report.get_bios_details()
-        report.log_bios_details()
-        report.get_processor_details()
-        report.log_processor_details()
-        report.get_memory_details()
-        report.log_memory_details()
-        report.log_mlnx_device_details()
+        print(colors.bblue+"Collecting {} Processor, BIOS, OS and Mellanox Adapter Report".format(Server_manufacturer_name+" "+Sever_product_name)+colors.END)
+        Os_details = report.get_os_details()
+        print(Os_details)
+        Bios_details = report.get_bios_details()
+        print(Bios_details)
+        Processor_details = report.get_processor_details()
+        print(Processor_details)
+        Memory_details = report.get_memory_details()
+        print(Memory_details)
+        print(Mlnx_device_details)
         
         Os_settings = os_settings()
         Os_settings.get_os_settings(Adapter_os_setting_list)
-        print("\033[94mOS Settings \033[0m[ \033[33mHPE Recommended \033[0m] :")
-        print(Os_settings.log_report_os_settings())
+        print(colors.lblue+"OS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :")
+        Report_os_settings_details = Os_settings.log_report_os_settings()
+        print(Report_os_settings_details)
         
 
     elif options.os:
@@ -763,4 +792,5 @@ if __name__=='__main__':
         Old_os_settings.set_recommended_os_settings()
         New_os_settings = os_settings()
         New_os_settings.get_os_settings(New_adapter_os_setting_list)
-        print(Old_os_settings.log_set_os_settings(New_os_settings))
+        Set_os_settings_details = Old_os_settings.log_set_os_settings(New_os_settings)
+        print(Set_os_settings_details)
