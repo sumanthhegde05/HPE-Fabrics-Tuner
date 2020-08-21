@@ -17,57 +17,75 @@ def get_date_and_time():
     string = now.strftime("%m%d%y_%H%M%S")
     return string
 
-GET_SERVER_MANUFACTURER_NAME    =   "dmidecode -t system | grep Manufacturer | awk '{print $2}'"
-GET_SERVER_PRODUCT_NAME         =   "dmidecode -t system | grep 'Product Name'"
-GET_OS_NAME                     =   "cat /etc/os-release | grep 'PRETTY_NAME'"
-GET_KERNAL_VERSION              =   "uname -r"
-GET_BIOS_RELEASE_DATE           =   "dmidecode -t bios | grep 'Release Date:'"
-GET_BIOS_VERSION                =   "dmidecode -t bios | grep 'Version:' | awk '{print $2}'"
-GET_PROCESSOR_NAME              =   "dmidecode -t processor | grep 'Version'"
-GET_SOCKETS_COUNT               =   "dmidecode -t processor | grep 'Version'"
-GET_CORE_COUNT                  =   "dmidecode -t processor | grep 'Core Count'"
-GET_THREAD_COUNT                =   "dmidecode -t processor | grep 'Thread Count'"
-GET_MAX_SPEED                   =   "dmidecode -t processor | grep 'Max Speed'"
-GET_NUMA_NODE_COUNT             =   "lscpu | grep NUMA"
-GET_NO_OF_DIMMS                 =   "dmidecode -t memory | grep 'Number Of Devices:'"
-GET_DIMM_SIZE                   =   "dmidecode -t memory | grep '^\s*Size:'"
-GET_TOTAL_MEMORY                =   "free | grep Mem | awk '{print $2}'"
-GET_MEMORY_SPEED                =   "dmidecode -t memory | grep '^\s*Speed:'"
-GET_MEMORY_TYPE                 =   "dmidecode -t memory | grep '^\s*Type:'"
-GET_MLNX_DEVICES                =   "lspci | grep -i mell"
-GET_NUMA_NODE                   =   "lspci -vvvs {0} | grep 'NUMA node:' | awk '{1}'"
-GET_PART_NUMBER                 =   "lspci -vvvs {0} | grep -i 'Part number:' | awk '{1}'"
-GET_PRODUCT_NAME                =   "lspci -vvvs {0} | grep -i 'Product name:'"
-GET_PCI_SLOT                    =   "lspci -vvvs {0} | grep -i 'Physical slot:' | awk '{1}'"
-GET_LINK_SPEED                  =   "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
-GET_LINK_WIDTH                  =   "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
-GET_INTERFACE_NAME              =   "ls -l /sys/class/infiniband/* | grep {0}"
-GET_NW_INTERFCAE_NAME           =   "ls -l /sys/class/net/* | grep '{0}'"
-GET_CHIPSET                     =   "lspci -vvvs {0}"
-GET_FW_VERSION                  =   "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
-GET_PSID                        =   "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
-GET_CARD_TYPE                   =   "lspci | grep -i mell | grep {0}"
-GET_CARD_STATUS                 =   "ethtool {0} | grep 'Link detected' | awk '{1}'"
-GET_FIREWALL_STATUS             =   "systemctl status firewalld | grep -i Active"
-GET_IRQBALANCE_STATUS           =   "systemctl status irqbalance | grep -i Active"
-GET_LRO_ON                      =   "ethtool -k {0} | grep -i large"
-GET_RX_GRO_HW                   =   "ethtool -k {0} | grep -i gro"
-GET_TX_USECS                    =   "ethtool -c {0} | grep -i 'tx-usecs:'"
-GET_RX_USECS                    =   "ethtool -c {0} | grep -i 'rx-usecs:'"
-GET_IPV4_TCP_TIMESTAMPS         =   "sysctl -x net.ipv4.tcp_timestamps | awk '{print $3}'"
-GET_IPV4_TCP_SACK               =   "sysctl -x net.ipv4.tcp_sack  | awk '{print $3}'"
-GET_CORE_NETDV_MAX_BACKLOG      =   "sysctl -x net.core.netdev_max_backlog | awk '{print $3}'"
-GET_NET_CORE_RMEM_MAX           =   "sysctl -x net.core.rmem_max | awk '{print $3}'"
-GET_NET_CORE_WMEM_MAX           =   "sysctl -x net.core.wmem_max | awk '{print $3}'"
-GET_NET_CORE_RMEM_DEFAULT       =   "sysctl -x net.core.rmem_default | awk '{print $3}'"
-GET_NET_CORE_WMEM_DEFAULT       =   "sysctl -x net.core.wmem_default | awk '{print $3}'"
-GET_NET_CORE_OPTMEM_MAX         =   "sysctl -x net.core.optmem_max | awk '{{print $3}}'"
-GET_NET_IPV4_TCP_RMEM           =   "sysctl -x net.ipv4.tcp_rmem"
-GET_NET_IPV4_TCP_WMEM           =   "sysctl -x net.ipv4.tcp_wmem"
-GET_NET_IPV4_TCP_LOW_LATENCY    =   "sysctl -x net.ipv4.tcp_low_latency | awk '{print $3}'"
-GET_RING_PARAMETERS_TX          =   "ethtool -g {0} | grep TX: | awk '{1}'"
-GET_RING_PARAMETERS_RX          =   "ethtool -g {0} | grep RX: | awk '{1}'"
-GET_COMBINED_QUEUE              =   "ethtool -l {0} | grep Combined: | awk '{1}'" 
+GET_SERVER_MANUFACTURER_NAME        =   "dmidecode -t system | grep Manufacturer | awk '{print $2}'"
+GET_SERVER_PRODUCT_NAME             =   "dmidecode -t system | grep 'Product Name'"
+GET_OS_NAME                         =   "cat /etc/os-release | grep 'PRETTY_NAME'"
+GET_KERNAL_VERSION                  =   "uname -r"
+GET_BIOS_RELEASE_DATE               =   "dmidecode -t bios | grep 'Release Date:'"
+GET_BIOS_VERSION                    =   "dmidecode -t bios | grep 'Version:' | awk '{print $2}'"
+GET_PROCESSOR_NAME                  =   "dmidecode -t processor | grep 'Version'"
+GET_SOCKETS_COUNT                   =   "dmidecode -t processor | grep 'Version'"
+GET_CORE_COUNT                      =   "dmidecode -t processor | grep 'Core Count'"
+GET_THREAD_COUNT                    =   "dmidecode -t processor | grep 'Thread Count'"
+GET_MAX_SPEED                       =   "dmidecode -t processor | grep 'Max Speed'"
+GET_NUMA_NODE_COUNT                 =   "lscpu | grep NUMA"
+GET_NO_OF_DIMMS                     =   "dmidecode -t memory | grep 'Number Of Devices:'"
+GET_DIMM_SIZE                       =   "dmidecode -t memory | grep '^\s*Size:'"
+GET_TOTAL_MEMORY                    =   "free | grep Mem | awk '{print $2}'"
+GET_MEMORY_SPEED                    =   "dmidecode -t memory | grep '^\s*Speed:'"
+GET_MEMORY_TYPE                     =   "dmidecode -t memory | grep '^\s*Type:'"
+GET_MLNX_DEVICES                    =   "lspci | grep -i mell"
+GET_NUMA_NODE                       =   "lspci -vvvs {0} | grep 'NUMA node:' | awk '{1}'"
+GET_PART_NUMBER                     =   "lspci -vvvs {0} | grep -i 'Part number:' | awk '{1}'"
+GET_PRODUCT_NAME                    =   "lspci -vvvs {0} | grep -i 'Product name:'"
+GET_PCI_SLOT                        =   "lspci -vvvs {0} | grep -i 'Physical slot:' | awk '{1}'"
+GET_LINK_SPEED                      =   "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
+GET_LINK_WIDTH                      =   "lspci -vvvs {0} | grep -i 'LnkSta:' | awk '{1}'"
+GET_INTERFACE_NAME                  =   "ls -l /sys/class/infiniband/* | grep {0}"
+GET_NW_INTERFCAE_NAME               =   "ls -l /sys/class/net/* | grep '{0}'"
+GET_CHIPSET                         =   "lspci -vvvs {0}"
+GET_FW_VERSION                      =   "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
+GET_PSID                            =   "ethtool -i {0} | grep 'firmware-version:' | awk '{1}'"
+GET_CARD_TYPE                       =   "lspci | grep -i mell | grep {0}"
+GET_CARD_STATUS                     =   "ethtool {0} | grep 'Link detected' | awk '{1}'"
+GET_FIREWALL_STATUS                 =   "systemctl status firewalld | grep -i Active"
+GET_IRQBALANCE_STATUS               =   "systemctl status irqbalance | grep -i Active"
+GET_LRO_ON                          =   "ethtool -k {0} | grep -i large"
+GET_RX_GRO_HW                       =   "ethtool -k {0} | grep -i gro"
+GET_TX_USECS                        =   "ethtool -c {0} | grep -i 'tx-usecs:'"
+GET_RX_USECS                        =   "ethtool -c {0} | grep -i 'rx-usecs:'"
+GET_IPV4_TCP_TIMESTAMPS             =   "sysctl -x net.ipv4.tcp_timestamps | awk '{print $3}'"
+GET_IPV4_TCP_SACK                   =   "sysctl -x net.ipv4.tcp_sack  | awk '{print $3}'"
+GET_CORE_NETDV_MAX_BACKLOG          =   "sysctl -x net.core.netdev_max_backlog | awk '{print $3}'"
+GET_NET_CORE_RMEM_MAX               =   "sysctl -x net.core.rmem_max | awk '{print $3}'"
+GET_NET_CORE_WMEM_MAX               =   "sysctl -x net.core.wmem_max | awk '{print $3}'"
+GET_NET_CORE_RMEM_DEFAULT           =   "sysctl -x net.core.rmem_default | awk '{print $3}'"
+GET_NET_CORE_WMEM_DEFAULT           =   "sysctl -x net.core.wmem_default | awk '{print $3}'"
+GET_NET_CORE_OPTMEM_MAX             =   "sysctl -x net.core.optmem_max | awk '{{print $3}}'"
+GET_NET_IPV4_TCP_RMEM               =   "sysctl -x net.ipv4.tcp_rmem"
+GET_NET_IPV4_TCP_WMEM               =   "sysctl -x net.ipv4.tcp_wmem"
+GET_NET_IPV4_TCP_LOW_LATENCY        =   "sysctl -x net.ipv4.tcp_low_latency | awk '{print $3}'"
+GET_RING_PARAMETERS_TX              =   "ethtool -g {0} | grep TX: | awk '{1}'"
+GET_RING_PARAMETERS_RX              =   "ethtool -g {0} | grep RX: | awk '{1}'"
+GET_COMBINED_QUEUE                  =   "ethtool -l {0} | grep Combined: | awk '{1}'" 
+GET_BIOS_SETTINGS                   =   "ilorest get --select Bios. | grep -E 'WorkloadProfile|ProcHyperthreading|ProcSMT|PreferredIOBusEnable|PreferredIOBusNumber|ProcAmdIOMMU|NumaMemoryDomainsPerSocket|LastLevelCacheAsNUMANode|TransparentSecureMemoryEncryption|DeterminismControl|PerformanceDeterminism|ProcX2Apic|DataFabricCStateEnable|InfinityFabricPstate|CStateEfficiencyMode|MinProcIdlePower|PowerRegulator|XGMIForceLinkWidth|XGMIMaxLinkWidth'"
+GET_TYPE_OF_PROCESSOR               =   "dmidecode -t processor | grep 'Manufacturer:' | awk '{print $2}'"
+GET_LSCPU_DETAILS                   =   "lscpu"
+GET_CPUINFO                         =   "cat /proc/cpuinfo"
+GET_MEMINFO                         =   "cat /proc/meminfo"
+GET_IBSTAT                          =   "ibstat"
+GET_IP_LINK                         =   "ip link"
+GET_IP_CONFIG                       =   "ifconfig -a"
+GET_MODINFO_MLX4_CORE               =   "modinfo mlx4_core | tr '<>' '[]'"
+GET_MODINFO_MLX4_IB                 =   "modinfo mlx4_ib | tr '<>' '[]'"
+GET_MODINFO_MLX4_EN                 =   "modinfo mlx4_en | tr '<>' '[]'"
+GET_MODINFO_MLX5_CORE               =   "modinfo mlx5_core | tr '<>' '[]'"
+GET_MODINFO_MLX5_IB                 =   "modinfo mlx5_ib | tr '<>' '[]'"
+GET_IBV_DEVICES                     =   "ibv_devices"
+GET_IBV_DEVINFO                     =   "ibv_devinfo"
+GET_IB_NODES                        =   "ibnodes"
+GET_IB_NETDISCOVER                  =   "ibnetdiscover"
+GET_IB_NETDISCOVER_P                =   "ibnetdiscover -p"
 
 SET_FIREWALL_OFF                    =   "systemctl stop firewalld"
 SET_IRQBALANCE_OFF                  =   "systemctl stop irqbalance"
@@ -89,8 +107,7 @@ SET_RING_PARAMETERS_TX_RX           =   "ethtool -G {} tx {} rx {}"
 SET_COMBINED_QUEUE                  =   "ethtool -L {} combined {}"
 SET_IPV4_LOW_LATENCY                =   "sysctl -w net.ipv4.tcp_low_latency=1 "
 
-GET_BIOS_SETTINGS                   =   "ilorest get --select Bios. | grep -E 'WorkloadProfile|ProcHyperthreading|ProcSMT|PreferredIOBusEnable|PreferredIOBusNumber|ProcAmdIOMMU|NumaMemoryDomainsPerSocket|LastLevelCacheAsNUMANode|TransparentSecureMemoryEncryption|DeterminismControl|PerformanceDeterminism|ProcX2Apic|DataFabricCStateEnable|InfinityFabricPstate|CStateEfficiencyMode|MinProcIdlePower|PowerRegulator|XGMIForceLinkWidth|XGMIMaxLinkWidth'"
-GET_TYPE_OF_PROCESSOR               =   "dmidecode -t processor | grep 'Manufacturer:' | awk '{print $2}'"
+
 
 General_Power_Efficient_Compute         =   "General_Power_Efficient_Compute"
 General_Peak_Frequency_Compute          =   "General_Peak_Frequency_Compute"
@@ -212,16 +229,6 @@ class adapter_os_details():
 
 
 def os_command(command):
-    """hostname = "132.168.2.131"
-    password = "Hptc_ib"
-    port = 22
-    username = "root"
-    sshClient = paramiko.SSHClient()
-    sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    sshClient.connect(hostname, port, username, password)
-    stdin, stdout, stderr = sshClient.exec_command(command)
-    result = ''.join(stdout.readlines())
-    return result"""
     process = subprocess.Popen(command+" 2> /dev/null",shell=True,stdout=subprocess.PIPE).communicate()
     result = process[0].decode()
     return result
@@ -256,7 +263,6 @@ def conversion(Total_memory , Dimm_size):
             
     Dimm_size = str(Dimm_size)+" "+add_on
     return Total_memory , Dimm_size
-
 
         
 def get_mlnx_device_details():
@@ -333,9 +339,6 @@ def get_mlnx_device_details():
     
     return string
         
-        
-
-
 
 class server_details:
 
@@ -697,8 +700,6 @@ class os_settings:
         
 
 
-
-
 class bios_settings:
 
     def set_intel_bios_Settings(self):
@@ -710,17 +711,18 @@ class bios_settings:
                     if words[0][0]=='#':
                         continue
                     elif self.__dict__[words[0]] == True:
-                        os_command("/usr/sbin/ilorest set "+line+" --select Bios. --commit")
-                        
+                        os_command("/usr/sbin/ilorest set "+line+" --select Bios. --commit")          
             
                     
     def set_amd_bios_setings(self):
         pass
     
+
     def set_hpe_bios_settings(self):
         if 'intel' in os_command(GET_TYPE_OF_PROCESSOR):
             self.set_intel_bios_settitngs()
         
+
     def log_report_bios_settings(self):
         result = os_command(GET_BIOS_SETTINGS)
         ret_result = ''
@@ -743,8 +745,6 @@ class bios_settings:
                                 ret_result += "    "+current_words[0]+indent.format(':  ')+current_words[1]+"  [ "+colors.yellow+"Recommended"+colors.END+" : "+colors.green+words[1]+colors.END+" ]\n"
         return ret_result
             
-            
-        
         
     def log_set_bios_settings(self,new):
         pass
@@ -779,6 +779,56 @@ def initialize():
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
     return options , logger
+
+    
+def write_info_to_file(file_path, info , display):
+    if display == True:
+        print(info)
+    log = open(file_path, 'a')
+    log.write(str(info))
+    log.close()
+
+
+def get_deailed_log():
+    result = colors.lblue+"output of 'lscpu' command"+ colors.END+" :\n"
+    result += os_command(GET_LSCPU_DETAILS)+"\n"
+    result += colors.lblue+"output of 'cat /proc/cpuinfo' command"+ colors.END+" :\n"
+    result += os_command(GET_CPUINFO)+"\n"
+    result += colors.lblue+"output of 'cat /proc/meminfo' command"+ colors.END+" :\n"
+    result += os_command(GET_MEMINFO)+"\n"
+    result += colors.lblue+"output of 'lspci | grep -i mell' command"+ colors.END+" :\n"
+    result += os_command(GET_MLNX_DEVICES)+"\n"
+    for bus_id in Bus_id_list:
+        result += colors.lblue+"output of 'lspci -vvvs {}' command".format(bus_id.name)+ colors.END+" :\n"
+        result += os_command(GET_CHIPSET.format(bus_id.name))+"\n"
+    result += colors.lblue+"output of 'ibstat' command"+ colors.END+" :\n"
+    result += os_command(GET_IBSTAT)+"\n"
+    result += colors.lblue+"output of 'ip link' command"+ colors.END+" :\n"
+    result += os_command(GET_IP_LINK)+"\n"
+    result += colors.lblue+"output of 'ifconfig -a' command"+ colors.END+" :\n"
+    result += os_command(GET_IP_CONFIG)+"\n"
+    result += colors.lblue+"output of 'modinfo mlx4_core | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command(GET_MODINFO_MLX4_CORE)+"\n"
+    result += colors.lblue+"output of 'modinfo mlx4_ib | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command(GET_MODINFO_MLX4_IB)+"\n"
+    result += colors.lblue+"output of 'modinfo mlx4_en | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command(GET_MODINFO_MLX4_EN)+"\n"
+    result += colors.lblue+"output of 'modinfo mlx5_core | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command(GET_MODINFO_MLX5_CORE)+"\n"
+    result += colors.lblue+"output of 'modinfo mlx5_ib | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command(GET_MODINFO_MLX5_IB)+"\n"
+    result += colors.lblue+"output of 'ibv_devices' command"+ colors.END+" :\n"
+    result += os_command(GET_IBV_DEVICES)+"\n"
+    result += colors.lblue+"output of 'ibv_devinfo' command"+ colors.END+" :\n"
+    result += os_command(GET_IBV_DEVINFO)+"\n"
+    result += colors.lblue+"output of 'ibnodes' command"+ colors.END+" :\n"
+    result += os_command(GET_IB_NODES)+"\n"
+    result += colors.lblue+"output of 'ibnetdiscover' command"+ colors.END+" :\n"
+    result += os_command(GET_IB_NETDISCOVER)+"\n"
+    result += colors.lblue+"output of 'ibnetdiscover -p' command"+ colors.END+" :\n"
+    result += os_command(GET_IB_NETDISCOVER_P)+"\n"
+    return result
+ 
 
 def Generate_report():
     global Adapter_os_setting_list
@@ -829,56 +879,8 @@ def HPE_recommended_bios_settings():
     New_bios.get_bios_settings()
     result = Old_bios_settingslog_set_bios_settings(New_bios)
     return result
-    
-    
-def write_info_to_file(file_path, info , display):
-    if display == True:
-        print(info)
-    log = open(file_path, 'a')
-    log.write(str(info))
-    log.close()
 
 
-def get_deailed_log():
-    result = colors.lblue+"output of 'lscpu' command"+ colors.END+" :\n"
-    result += os_command("lscpu")+"\n"
-    result += colors.lblue+"output of 'cat /proc/cpuinfo' command"+ colors.END+" :\n"
-    result += os_command("cat /proc/cpuinfo")+"\n"
-    result += colors.lblue+"output of 'cat /proc/meminfo' command"+ colors.END+" :\n"
-    result += os_command("cat /proc/meminfo")+"\n"
-    result += colors.lblue+"output of 'lspci | grep -i mell' command"+ colors.END+" :\n"
-    result += os_command("lspci | grep -i mell")+"\n"
-    for bus_id in Bus_id_list:
-        result += colors.lblue+"output of 'lspci -vvvs {}' command".format(bus_id.name)+ colors.END+" :\n"
-        result += os_command("lspci -vvvs "+bus_id.name)+"\n"
-    result += colors.lblue+"output of 'ibstat' command"+ colors.END+" :\n"
-    result += os_command("ibstat")+"\n"
-    result += colors.lblue+"output of 'ip link' command"+ colors.END+" :\n"
-    result += os_command("ip link")+"\n"
-    result += colors.lblue+"output of 'ifconfig -a' command"+ colors.END+" :\n"
-    result += os_command("ifconfig -a")+"\n"
-    result += colors.lblue+"output of 'modinfo mlx4_core | tr '<>' '[]' command"+ colors.END+" :\n"
-    result += os_command("modinfo mlx4_core | tr '<>' '[]'")+"\n"
-    result += colors.lblue+"output of 'modinfo mlx4_ib | tr '<>' '[]' command"+ colors.END+" :\n"
-    result += os_command("modinfo mlx4_ib | tr '<>' '[]'")+"\n"
-    result += colors.lblue+"output of 'modinfo mlx4_en | tr '<>' '[]' command"+ colors.END+" :\n"
-    result += os_command("modinfo mlx4_en | tr '<>' '[]'")+"\n"
-    result += colors.lblue+"output of 'modinfo mlx5_core | tr '<>' '[]' command"+ colors.END+" :\n"
-    result += os_command("modinfo mlx5_core | tr '<>' '[]'")+"\n"
-    result += colors.lblue+"output of 'modinfo mlx5_ib | tr '<>' '[]' command"+ colors.END+" :\n"
-    result += os_command("modinfo mlx5_ib | tr '<>' '[]'")+"\n"
-    result += colors.lblue+"output of 'ibv_devices' command"+ colors.END+" :\n"
-    result += os_command("ibv_devices")+"\n"
-    result += colors.lblue+"output of 'ibv_devinfo' command"+ colors.END+" :\n"
-    result += os_command("ibv_devinfo")+"\n"
-    result += colors.lblue+"output of 'ibnodes' command"+ colors.END+" :\n"
-    result += os_command("ibnodes")+"\n"
-    result += colors.lblue+"output of 'ibnetdiscover' command"+ colors.END+" :\n"
-    result += os_command("ibnetdiscover")+"\n"
-    result += colors.lblue+"output of 'ibnetdiscover -p' command"+ colors.END+" :\n"
-    result += os_command("ibnetdiscover -p")+"\n"
-    return result
- 
 if __name__=='__main__':
  
     Bus_id_list = []
@@ -887,7 +889,6 @@ if __name__=='__main__':
     Adapter_os_setting_list = []
     parser = OptionParser(add_help_option=False)
     options , logger = initialize()
-   
     
     if options.help:
         logger.info(help_message)
@@ -919,4 +920,5 @@ if __name__=='__main__':
         
     result = get_deailed_log()
     write_info_to_file(file_name,result,False)
-    print(colors.lyellow+"INFO"+colors.END+": Detailed System info file: "+file_name)
+
+    print(colors.lyellow+"INFO"+colors.END+": Detailed System info file: "+file_name+"\n")
