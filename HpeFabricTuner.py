@@ -10,6 +10,12 @@ import sys
 from optparse import OptionParser,OptionGroup
 from textwrap import dedent
 import logging
+from datetime import datetime
+
+def get_date_and_time():
+    now = datetime.now()
+    string = now.strftime("%m%d%y_%H%M%S")
+    return string
 
 GET_SERVER_MANUFACTURER_NAME    =   "dmidecode -t system | grep Manufacturer | awk '{print $2}'"
 GET_SERVER_PRODUCT_NAME         =   "dmidecode -t system | grep 'Product Name'"
@@ -63,25 +69,28 @@ GET_RING_PARAMETERS_TX          =   "ethtool -g {0} | grep TX: | awk '{1}'"
 GET_RING_PARAMETERS_RX          =   "ethtool -g {0} | grep RX: | awk '{1}'"
 GET_COMBINED_QUEUE              =   "ethtool -l {0} | grep Combined: | awk '{1}'" 
 
-SET_FIREWALL_OFF                    =   "systemctl stop firewalld 2> /dev/null"
-SET_IRQBALANCE_OFF                  =   "systemctl stop irqbalance 2> /dev/null"
-SET_LRO_ON                          =   "ethtool -K {} lro on 2> /dev/null"
-SET_ADAPTIVE_TX_TXUSECS_TXFRAMES    =   "ethtool -C {0} adaptive-tx off tx-usecs {1} tx-frames 0 2> /dev/null"
-SET_ADAPTIVE_RX_RXUSECS_RXFRAMES    =   "ethtool -C {0} adaptive-rx off rx-usecs {1} rx-frames 0 2> /dev/null"
-SET_AFFINITY                        =   "/usr/sbin/set_irq_affinity_bynode.sh {0} {1} 2> /dev/null"
-SET_IPV4_TCP_TIMESTAMPS             =   "sysctl -w net.ipv4.tcp_timestamps=0 2> /dev/null"
-SET_IPV4_TCP_SACK                   =   "sysctl -w net.ipv4.tcp_sack=1 2> /dev/null"
-SET_CORE_NETDV_MAX_BACKLOG          =   "sysctl -w net.core.netdev_max_backlog={} 2> /dev/null"
-SET_NET_CORE_RMEM_MAX               =   "sysctl -w net.core.rmem_max={} 2> /dev/null"
-SET_NET_CORE_WMEM_MAX               =   "sysctl -w net.core.wmem_max={} 2> /dev/null"
-SET_NET_CORE_RMEM_DEFAULT           =   "sysctl -w net.core.rmem_default={} 2> /dev/null"
-SET_NET_CORE_WMEM_DEFAULT           =   "sysctl -w net.core.wmem_default={} 2> /dev/null"
-SET_NET_CORE_OPTMEM_MAX             =   "sysctl -w net.core.optmem_max={} 2> /dev/null"
-SET_NET_IPV4_TCP_RMEM               =   "sysctl -w net.ipv4.tcp_rmem='{}' 2> /dev/null"
-SET_NET_IPV4_TCP_WMEM               =   "sysctl -w net.ipv4.tcp_wmem='{}' 2> /dev/null"
-SET_RING_PARAMETERS_TX_RX           =   "ethtool -G {} tx {} rx {} 2> /dev/null"
-SET_COMBINED_QUEUE                  =   "ethtool -L {} combined {} 2> /dev/null"
+SET_FIREWALL_OFF                    =   "systemctl stop firewalld"
+SET_IRQBALANCE_OFF                  =   "systemctl stop irqbalance"
+SET_LRO_ON                          =   "ethtool -K {} lro on"
+SET_ADAPTIVE_TX_TXUSECS_TXFRAMES    =   "ethtool -C {0} adaptive-tx off tx-usecs {1} tx-frames 0"
+SET_ADAPTIVE_RX_RXUSECS_RXFRAMES    =   "ethtool -C {0} adaptive-rx off rx-usecs {1} rx-frames 0"
+SET_AFFINITY                        =   "/usr/sbin/set_irq_affinity_bynode.sh {0} {1}"
+SET_IPV4_TCP_TIMESTAMPS             =   "sysctl -w net.ipv4.tcp_timestamps=0"
+SET_IPV4_TCP_SACK                   =   "sysctl -w net.ipv4.tcp_sack=1"
+SET_CORE_NETDV_MAX_BACKLOG          =   "sysctl -w net.core.netdev_max_backlog={}"
+SET_NET_CORE_RMEM_MAX               =   "sysctl -w net.core.rmem_max={}"
+SET_NET_CORE_WMEM_MAX               =   "sysctl -w net.core.wmem_max={}"
+SET_NET_CORE_RMEM_DEFAULT           =   "sysctl -w net.core.rmem_default={}"
+SET_NET_CORE_WMEM_DEFAULT           =   "sysctl -w net.core.wmem_default={}"
+SET_NET_CORE_OPTMEM_MAX             =   "sysctl -w net.core.optmem_max={}"
+SET_NET_IPV4_TCP_RMEM               =   "sysctl -w net.ipv4.tcp_rmem='{}'"
+SET_NET_IPV4_TCP_WMEM               =   "sysctl -w net.ipv4.tcp_wmem='{}'"
+SET_RING_PARAMETERS_TX_RX           =   "ethtool -G {} tx {} rx {}"
+SET_COMBINED_QUEUE                  =   "ethtool -L {} combined {}"
 SET_IPV4_LOW_LATENCY                =   "sysctl -w net.ipv4.tcp_low_latency=1 "
+
+GET_BIOS_SETTINGS                   =   "ilorest get --select Bios. | grep -E 'WorkloadProfile|ProcHyperthreading|ProcSMT|PreferredIOBusEnable|PreferredIOBusNumber|ProcAmdIOMMU|NumaMemoryDomainsPerSocket|LastLevelCacheAsNUMANode|TransparentSecureMemoryEncryption|DeterminismControl|PerformanceDeterminism|ProcX2Apic|DataFabricCStateEnable|InfinityFabricPstate|CStateEfficiencyMode|MinProcIdlePower|PowerRegulator|XGMIForceLinkWidth|XGMIMaxLinkWidth'"
+GET_TYPE_OF_PROCESSOR               =   "dmidecode -t processor | grep 'Manufacturer:' | awk '{print $2}'"
 
 General_Power_Efficient_Compute         =   "General_Power_Efficient_Compute"
 General_Peak_Frequency_Compute          =   "General_Peak_Frequency_Compute"
@@ -174,8 +183,8 @@ class colors:
 
 class adapter_details:
     def __init__(self):
-        self.name = 'Unknown'
         self.flag = False
+        self.name = 'Unknown'
         self.Physical_slot = 'Unknown'
         self.Chipset = 'Unknown'
         self.Part_number = 'Unknown'
@@ -213,7 +222,7 @@ def os_command(command):
     stdin, stdout, stderr = sshClient.exec_command(command)
     result = ''.join(stdout.readlines())
     return result"""
-    process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE).communicate()
+    process = subprocess.Popen(command+" 2> /dev/null",shell=True,stdout=subprocess.PIPE).communicate()
     result = process[0].decode()
     return result
 
@@ -325,12 +334,7 @@ def get_mlnx_device_details():
     return string
         
         
-def log(data):
-    print(data)
-    with open('log.txt','a') as file:
-        file.write('\n')
-        file.write(data)
-        file.write('\n') 
+
 
 
 class server_details:
@@ -552,7 +556,7 @@ class os_settings:
             string += "        TCP WMEM            :    "+self.Net_ipv4_tcp_wmem+"\n"
         else:  
             string += "        TCP WMEM            :    "+note.format(new.Net_ipv4_tcp_wmem,self.Net_ipv4_tcp_wmem,new.Net_ipv4_tcp_wmem)+"\n"
-        string += colors.lblue+"Mellanox Adapter OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] \n"
+        string += colors.lblue+"Mellanox Adapter OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
         for index in range(len(Bus_id_list)):
             if Bus_id_list[index].Network_if_name == 'Check_Driver': 
                 string += "    "+Bus_id_list[index].name+"    :   Check_Driver\n"
@@ -652,7 +656,7 @@ class os_settings:
         if self.Net_ipv4_tcp_wmem == self.Recommended_Net_ipv4_tcp_wmem:
             string += "        IPv4 WMEM            :    "+self.Net_ipv4_tcp_wmem+"\n"
         else:
-            string += "        IPv4 WMEM            :    "+self.Net_ipv4_tcp_wmem+recommended+elf.Recommended_Net_ipv4_tcp_wmem+colors.END+" ]\n"
+            string += "        IPv4 WMEM            :    "+self.Net_ipv4_tcp_wmem+recommended+self.Recommended_Net_ipv4_tcp_wmem+colors.END+" ]\n"
         string += colors.lblue+"Mellanox Adapter OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] \n"
         for index in range(len(Bus_id_list)):
             if Bus_id_list[index].Network_if_name == 'Check_Driver': 
@@ -692,9 +696,59 @@ class os_settings:
         return string
         
 
+
+
+
 class bios_settings:
-    def __init__(self):
+
+    def set_intel_bios_Settings(self):
+        if 'intel' in os_command(GET_TYPE_OF_PROCESSOR):
+            with open('config.txt','r') as file:
+                lines = file.readlines()
+                for line in lines:
+                    words = line.strip().split('=')
+                    if words[0][0]=='#':
+                        continue
+                    elif self.__dict__[words[0]] == True:
+                        os_command("/usr/sbin/ilorest set "+line+" --select Bios. --commit")
+                        
+            
+                    
+    def set_amd_bios_setings(self):
         pass
+    
+    def set_hpe_bios_settings(self):
+        if 'intel' in os_command(GET_TYPE_OF_PROCESSOR):
+            self.set_intel_bios_settitngs()
+        
+    def log_report_bios_settings(self):
+        result = os_command(GET_BIOS_SETTINGS)
+        ret_result = ''
+        with open('config.txt','r') as file:
+            lines = file.readlines()
+            for line in lines:
+                words = line.strip().split('=')
+                if lines[0]=='#':
+                    continue
+                elif words[0] in result:
+                    current_line = result.strip().split('\n')
+                    for every in current_line:
+                        current_words = every.split('=')
+                        indent = "{:>"+str(25-len(current_words[0]))+"}"
+                        if current_words[0]==words[0]:
+                
+                            if current_words[1] == words[1].replace('"',''):
+                                ret_result += "    "+current_words[0]+indent.format(':  ')+current_words[1]+"\n"
+                            else:  
+                                ret_result += "    "+current_words[0]+indent.format(':  ')+current_words[1]+"  [ "+colors.yellow+"Recommended"+colors.END+" : "+colors.green+words[1]+colors.END+" ]\n"
+        return ret_result
+            
+            
+        
+        
+    def log_set_bios_settings(self,new):
+        pass
+        
     
 
 def add_options (parser):
@@ -738,14 +792,20 @@ def Generate_report():
     Os_settings = os_settings()
     Os_settings.get_os_settings(Adapter_os_setting_list)
     Os_settings_details = Os_settings.log_report_os_settings()
-    result = colors.bblue+"Collecting {} Processor, BIOS, OS and Mellanox Adapter report".format(Server_manufacturer_name+" "+Sever_product_name)+colors.END+"\n"
-    result += Os_details
-    result += Bios_details
-    result += Processor_details
-    result += Memory_details
-    result += Mlnx_device_details
+    Bios_settings = bios_settings()
+    Bios_settings_details = Bios_settings.log_report_bios_settings()
+    
+    
+    result = colors.bblue+"Collecting {} Processor, BIOS, OS and Mellanox Adapter report".format(Server_manufacturer_name+" "+Sever_product_name)+colors.END+"\n\n"
+    result += Os_details+"\n"
+    result += Bios_details+"\n"
+    result += Processor_details+"\n"
+    result += Memory_details+"\n"
+    result += Mlnx_device_details+"\n"
     result += colors.lblue+"OS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
-    result += Os_settings_details
+    result += Os_settings_details+"\n"
+    result += colors.lblue+"BIOS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
+    result += Bios_settings_details+"\n"
     return result
 
 
@@ -762,8 +822,63 @@ def HPE_recommended_os_settings():
     return result
 
 def HPE_recommended_bios_settings():
-    pass
+    Old_bios = bios_settings()
+    Old_bios.get_bios_settings()
+    Old_bios.set_hpe_bios_settings()
+    New_bios = bios_settings()
+    New_bios.get_bios_settings()
+    result = Old_bios_settingslog_set_bios_settings(New_bios)
+    return result
+    
+    
+def write_info_to_file(file_path, info , display):
+    if display == True:
+        print(info)
+    log = open(file_path, 'a')
+    log.write(str(info))
+    log.close()
 
+
+def get_deailed_log():
+    result = colors.lblue+"output of 'lscpu' command"+ colors.END+" :\n"
+    result += os_command("lscpu")+"\n"
+    result += colors.lblue+"output of 'cat /proc/cpuinfo' command"+ colors.END+" :\n"
+    result += os_command("cat /proc/cpuinfo")+"\n"
+    result += colors.lblue+"output of 'cat /proc/meminfo' command"+ colors.END+" :\n"
+    result += os_command("cat /proc/meminfo")+"\n"
+    result += colors.lblue+"output of 'lspci | grep -i mell' command"+ colors.END+" :\n"
+    result += os_command("lspci | grep -i mell")+"\n"
+    for bus_id in Bus_id_list:
+        result += colors.lblue+"output of 'lspci -vvvs {}' command".format(bus_id.name)+ colors.END+" :\n"
+        result += os_command("lspci -vvvs "+bus_id.name)+"\n"
+    result += colors.lblue+"output of 'ibstat' command"+ colors.END+" :\n"
+    result += os_command("ibstat")+"\n"
+    result += colors.lblue+"output of 'ip link' command"+ colors.END+" :\n"
+    result += os_command("ip link")+"\n"
+    result += colors.lblue+"output of 'ifconfig -a' command"+ colors.END+" :\n"
+    result += os_command("ifconfig -a")+"\n"
+    result += colors.lblue+"output of 'modinfo mlx4_core | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command("modinfo mlx4_core | tr '<>' '[]'")+"\n"
+    result += colors.lblue+"output of 'modinfo mlx4_ib | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command("modinfo mlx4_ib | tr '<>' '[]'")+"\n"
+    result += colors.lblue+"output of 'modinfo mlx4_en | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command("modinfo mlx4_en | tr '<>' '[]'")+"\n"
+    result += colors.lblue+"output of 'modinfo mlx5_core | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command("modinfo mlx5_core | tr '<>' '[]'")+"\n"
+    result += colors.lblue+"output of 'modinfo mlx5_ib | tr '<>' '[]' command"+ colors.END+" :\n"
+    result += os_command("modinfo mlx5_ib | tr '<>' '[]'")+"\n"
+    result += colors.lblue+"output of 'ibv_devices' command"+ colors.END+" :\n"
+    result += os_command("ibv_devices")+"\n"
+    result += colors.lblue+"output of 'ibv_devinfo' command"+ colors.END+" :\n"
+    result += os_command("ibv_devinfo")+"\n"
+    result += colors.lblue+"output of 'ibnodes' command"+ colors.END+" :\n"
+    result += os_command("ibnodes")+"\n"
+    result += colors.lblue+"output of 'ibnetdiscover' command"+ colors.END+" :\n"
+    result += os_command("ibnetdiscover")+"\n"
+    result += colors.lblue+"output of 'ibnetdiscover -p' command"+ colors.END+" :\n"
+    result += os_command("ibnetdiscover -p")+"\n"
+    return result
+ 
 if __name__=='__main__':
  
     Bus_id_list = []
@@ -772,25 +887,36 @@ if __name__=='__main__':
     Adapter_os_setting_list = []
     parser = OptionParser(add_help_option=False)
     options , logger = initialize()
-    file = open('log.txt','w')
-    file.write("")
-    file.close()
+   
     
     if options.help:
         logger.info(help_message)
         sys.exit()
-
+        
+    file_name = "/tmp/hpefabrictuner_"+get_date_and_time()+".log"
+    file = open(file_name,'w')
+    file.write("")
+    file.close()
     Mlnx_device_details = get_mlnx_device_details()
 
     if options.report:
         report = Generate_report()
-        log(report)
+        write_info_to_file(file_name,report,True)
         
-
     elif options.os:
         Os_settings_details = HPE_recommended_os_settings()
-        log(Os_settings_details)
+        write_info_to_file(file_name,Os_settings_details,True)
     
+    elif options.arch_bios:
+        Bios_settings_details = HPE_recommended_bios_settings()
+        write_info_to_file(file_name,Bios_settings_details,True)
+        
     else:
         Os_settings_details = HPE_recommended_os_settings()
-        log(Os_settings_details)
+        write_info_to_file(file_name,Os_settings_details,True)
+        Bios_settings_details = HPE_recommended_bios_settings()
+        write_info_to_file(file_name,Bios_settings_details,True)
+        
+    result = get_deailed_log()
+    write_info_to_file(file_name,result,False)
+    print(colors.lyellow+"INFO"+colors.END+": Detailed System info file: "+file_name)
