@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3.6
 
 # -*- coding: utf-8 -*-
 
@@ -890,7 +890,7 @@ class bios_settings:
                         continue
                     elif self.__dict__[words[0]] != 'Unknown':
                         #print('exec '+line)
-                        os_command("ilorest set "+line+" --select Bios. --commit")    
+                        os_command("ilorest set "+line.strip()+" --select Bios. --commit")    
         
 
     def log_report_bios_settings(self):
@@ -993,7 +993,7 @@ def HPE_recommended_os_settings():
     New_os_settings = os_settings()
     New_os_settings.get_os_settings(Adapter_new_os_settings_list)
     string = colors.lblue+"OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
-    string += Old_os_settings.log_set_os_settings(New_os_settings)
+    string += Old_os_settings.log_set_os_settings(New_os_settings)+"\n"
     return string
 
 def HPE_recommended_bios_settings():
@@ -1003,7 +1003,7 @@ def HPE_recommended_bios_settings():
     New_bios = bios_settings()
     New_bios.get_hpe_bios_settings()
     string = colors.lblue+"BIOS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
-    string = Old_bios.log_set_bios_settings(New_bios)
+    string += Old_bios.log_set_bios_settings(New_bios)
     return string
 
 
@@ -1026,18 +1026,19 @@ def main():
     elif options.os:
         Os_settings_details = HPE_recommended_os_settings()
         write_info_to_file(file_name,Os_settings_details,True)
+        print(colors.yellow+"Note"+colors.END+": To apply changes, request to reboot the server.\n\n")
     
     elif options.hpe_bios:
         Bios_settings_details = HPE_recommended_bios_settings()
         write_info_to_file(file_name,Bios_settings_details,True)
+        print(colors.yellow+"Note"+colors.END+": To apply changes, request to reboot the server.\n\n")
         
     else:
         Os_settings_details = HPE_recommended_os_settings()
-        write_info_to_file(file_name,Os_settings_details,True)
         Bios_settings_details = HPE_recommended_bios_settings()
-        write_info_to_file(file_name,Bios_settings_details,True)
         result = Os_settings_details + "\n" + Bios_settings_details
         write_info_to_file(file_name,result,True)
+        print(colors.yellow+"Note"+colors.END+": To apply changes, request to reboot the server.\n")
         
         
     Detailed_log = get_deailed_log()
