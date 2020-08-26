@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python2.7
 
 # -*- coding: utf-8 -*-
 
@@ -63,7 +63,7 @@ GET_NET_IPV4_TCP_LOW_LATENCY        =   "sysctl -x net.ipv4.tcp_low_latency | aw
 GET_RING_PARAMETERS_TX              =   "ethtool -g {0} | grep TX: | awk '{1}'"
 GET_RING_PARAMETERS_RX              =   "ethtool -g {0} | grep RX: | awk '{1}'"
 GET_COMBINED_QUEUE                  =   "ethtool -l {0} | grep Combined: | awk '{1}'" 
-GET_BIOS_SETTINGS                   =   "ilorest get --select Bios. | grep -E 'WorkloadProfile|ProcHyperthreading|ProcSMT|PreferredIOBusEnable|PreferredIOBusNumber|ProcAmdIOMMU|NumaMemoryDomainsPerSocket|LastLevelCacheAsNUMANode|TransparentSecureMemoryEncryption|DeterminismControl|PerformanceDeterminism|ProcX2Apic|DataFabricCStateEnable|InfinityFabricPstate|CStateEfficiencyMode|MinProcIdlePower|PowerRegulator|XGMIForceLinkWidth|XGMIMaxLinkWidth'"
+GET_BIOS_SETTINGS                   =   "ilorest --nocache get --select Bios. | grep -E 'WorkloadProfile|ProcHyperthreading|ProcSMT|PreferredIOBusEnable|PreferredIOBusNumber|ProcAmdIOMMU|NumaMemoryDomainsPerSocket|LastLevelCacheAsNUMANode|TransparentSecureMemoryEncryption|DeterminismControl|PerformanceDeterminism|ProcX2Apic|DataFabricCStateEnable|InfinityFabricPstate|CStateEfficiencyMode|MinProcIdlePower|PowerRegulator|XGMIForceLinkWidth|XGMIMaxLinkWidth'"
 GET_TYPE_OF_PROCESSOR               =   "dmidecode -t processor | grep 'Manufacturer:' | awk '{print $2}'"
 GET_LSCPU_DETAILS                   =   "lscpu"
 GET_CPUINFO                         =   "cat /proc/cpuinfo"
@@ -81,6 +81,9 @@ GET_IBV_DEVINFO                     =   "ibv_devinfo"
 GET_IB_NODES                        =   "ibnodes"
 GET_IB_NETDISCOVER                  =   "ibnetdiscover"
 GET_IB_NETDISCOVER_P                =   "ibnetdiscover -p"
+GET_DMIDECODE                       =   "dmidecode"
+GET_INTERFACE_DETAILS               =   "ls -l /sys/class/infiniband/*"
+GET_NETWORK_IF_DETAILS              =   "ls -l /sys/class/net/*"
 
 SET_FIREWALL_OFF                    =   "systemctl {} firewalld"
 SET_IRQBALANCE_OFF                  =   "systemctl {} irqbalance"
@@ -117,9 +120,9 @@ IO_throughput                           =   "I/O_Throughput"
 Custom                                  =   "Custom"
 
 
+
 COMMANDS_FOR_LOG_FILE = [   
                             GET_LSCPU_DETAILS, 
-                            GET_CPUINFO, 
                             GET_MEMINFO,
                             GET_MLNX_DEVICES,
                             GET_CHIPSET, 
@@ -135,7 +138,11 @@ COMMANDS_FOR_LOG_FILE = [
                             GET_IBV_DEVINFO, 
                             GET_IB_NODES, 
                             GET_IB_NETDISCOVER, 
-                            GET_IB_NETDISCOVER_P               
+                            GET_IB_NETDISCOVER_P,
+                            GET_INTERFACE_DETAILS,
+                            GET_NETWORK_IF_DETAILS,
+                            GET_CPUINFO,
+                            GET_DMIDECODE          
                         ]
 
 
@@ -228,7 +235,7 @@ def os_command(command):
     """
     Method used to run all os commands on the system.
     """
-    process = subprocess.Popen(command+" 2> /dev/null",shell=True,stdout=subprocess.PIPE).communicate()
+    process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
     result = process[0].decode()
     return result
 
@@ -366,6 +373,7 @@ def get_mlnx_device_details():
             Bus_id_list.append(temp)
         
     for bus_id in Bus_id_list:
+        #print(bus_id.name)
         bus_id.Physical_slot = os_command(GET_PCI_SLOT.format(bus_id.name,'{print $3}')).strip()
         
         if bus_id.Physical_slot == '':
@@ -422,7 +430,6 @@ def get_mlnx_device_details():
         if bus_id.flag:
             string += colors.yellow+"Warning"+colors.END+" : Check_driver = Driver is not installed or not loaded\n"
             break
-    
     return string
         
 
@@ -832,6 +839,27 @@ class bios_settings:
     """
     Class containing details about bios settings.
     """
+    def __init__(self):
+        self.WorkloadProfile = "Unknown"
+        self.ProcHyperthreading = "Unknown"
+        self.Recommended_WorkloadProfile = "Unknown"
+        self.Recommended_ProcHyperthreading = "Unknown"
+    
+    
+    def get_hpe_bios_settings(self):
+        result = os_command(GET_BIOS_SETTINGS)
+        #print(result)
+        with open('config.txt','r') as file:
+            lines = file.readlines()
+            for line in lines:
+                words = line.split('=')
+                for item in result.strip().split('\n'):
+                    if 'WorkloadProfile' in item and 'WorkloadProfile' in line:
+                        self.WorkloadProfile = item.split('=')[-1].strip()
+                        self.Recommended_WorkloadProfile = words[1].strip().replace('"','')
+                    elif 'ProcHyperthreading' in item and 'ProcHyperthreading' in line:
+                        self.ProcHyperthreading = item.split('=')[-1].strip()
+                        self.Recommended_ProcHyperthreading = words[1].strip()        
     def set_intel_bios_Settings(self):
         """
         Method that sets the intel specific bios details
@@ -850,47 +878,64 @@ class bios_settings:
         """
         Method that sets HPE recommended bios settings.
         """
-        if 'intel' in os_command(GET_TYPE_OF_PROCESSOR):
+        #print(os_command(GET_TYPE_OF_PROCESSOR))
+        if 'Intel' in os_command(GET_TYPE_OF_PROCESSOR):
             with open('config.txt','r') as file:
                 lines = file.readlines()
                 for line in lines:
                     words = line.strip().split('=')
+                    #print(words)
+                    #print(self.__dict__)
                     if words[0][0]=='#':
                         continue
-                    elif self.__dict__[words[0]] == True:
-                        os_command("/usr/sbin/ilorest set "+line+" --select Bios. --commit")    
+                    elif self.__dict__[words[0]] != 'Unknown':
+                        #print('exec '+line)
+                        os_command("ilorest set "+line+" --select Bios. --commit")    
         
 
     def log_report_bios_settings(self):
         """
         Method that generates report before making the recommended changes.
         """
-        result = os_command(GET_BIOS_SETTINGS)
-        ret_result = ''
+        string = ''
+        
         with open('config.txt','r') as file:
             lines = file.readlines()
             for line in lines:
                 words = line.strip().split('=')
                 if lines[0]=='#':
                     continue
-                elif words[0] in result:
-                    current_line = result.strip().split('\n')
-                    for every in current_line:
-                        current_words = every.split('=')
-                        indent = "{:>"+str(25-len(current_words[0]))+"}"
-                        if current_words[0]==words[0]:                
-                            if current_words[1] == words[1].replace('"',''):
-                                ret_result += "    "+current_words[0]+indent.format(':  ')+current_words[1]+"\n"
-                            else:  
-                                ret_result += "    "+current_words[0]+indent.format(':  ')+current_words[1]+"  [ "+colors.yellow+"Recommended"+colors.END+" : "+colors.green+words[1]+colors.END+" ]\n"
-        return ret_result
+                elif words[0] in self.__dict__.keys():
+                    current = self.__dict__[words[0]]
+                    if current != 'Unknown':
+                        indent = "{:>"+str(28-len(words[0]))+"}"
+                        if words[1].replace('"','')==current:
+                            string += "    "+words[0]+indent.format(':  ')+current+"\n"
+                        else:  
+                            string += "    "+words[0]+indent.format(':  ')+current+"  [ "+colors.yellow+"Recommended"+colors.END+" : "+colors.green+words[1]+colors.END+" ]\n"
+        return string
             
         
     def log_set_bios_settings(self,new):
         """
         Method that generates report after the recommended changes.
         """
-        pass
+        note = "{}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]"
+        error = "{}  [\033[31m Error \033[0m: Failed to set HPE recommended '{}' from current '{}' setting ]"
+        string = ''
+        if self.WorkloadProfile == new.WorkloadProfile and self.WorkloadProfile != self.Recommended_WorkloadProfile:
+            string += "    WorkloadProfile              :    "+error.format(self.WorkloadProfile,self.Recommended_WorkloadProfile,self.WorkloadProfile)+"\n"
+        elif self.WorkloadProfile == new.WorkloadProfile:
+            string += "    WorkloadProfile              :    "+self.WorkloadProfile+"\n"
+        else:
+            string += "    WorkloadProfile              :    "+note.format(new.WorkloadProfile,self.WorkloadProfile,new.WorkloadProfile)+"\n"
+        if self.ProcHyperthreading == new.ProcHyperthreading and self.ProcHyperthreading != self.Recommended_ProcHyperthreading:
+            string += "    ProcHyperthreading           :    "+error.format(self.ProcHyperthreading,self.Recommended_ProcHyperthreading,self.ProcHyperthreading)+"\n"
+        elif self.ProcHyperthreading == new.ProcHyperthreading:
+            string += "    ProcHyperthreading           :    "+self.ProcHyperthreading+"\n"
+        else:
+            string += "    ProcHyperthreading           :    "+note.format(new.ProcHyperthreading,self.ProcHyperthreading,new.ProcHyperthreading)+"\n"
+        return string
 
 
 def get_deailed_log():
@@ -898,13 +943,14 @@ def get_deailed_log():
     For logging all the required commands.
     """
     string = ''
+    
     for command in COMMANDS_FOR_LOG_FILE:
         if command == GET_CHIPSET:
             for bus_id in Bus_id_list:
                 string += colors.lblue+"output of 'lspci -vvvs {}' command".format(bus_id.name)+ colors.END+" :\n"
                 string += os_command(GET_CHIPSET.format(bus_id.name))+"\n"
         else:
-            string = colors.lblue+"output of '"+command+"' command"+ colors.END+" :\n"
+            string += colors.lblue+"output of '"+command+"' command"+ colors.END+" :\n"
             string += os_command(command)+"\n"
     return string
  
@@ -922,6 +968,7 @@ def Generate_report():
     Os_settings.get_os_settings(Adapter_os_setting_list)
     Os_settings_details = Os_settings.log_report_os_settings()
     Bios_settings = bios_settings()
+    Bios_settings.get_hpe_bios_settings()
     Bios_settings_details = Bios_settings.log_report_bios_settings()
     
     string = colors.bblue+"Collecting {} Processor, BIOS, OS and Mellanox Adapter report".format(Server_manufacturer_name+" "+Sever_product_name)+colors.END+"\n\n"
@@ -930,9 +977,9 @@ def Generate_report():
     string += Processor_details+"\n"
     string += Memory_details+"\n"
     string += Mlnx_device_details+"\n"
-    string += colors.lblue+"OS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
+    string += colors.lblue+"OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
     string += Os_settings_details+"\n"
-    string += colors.lblue+"BIOS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
+    string += colors.lblue+"BIOS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
     string += Bios_settings_details+"\n"
     return string
 
@@ -945,38 +992,33 @@ def HPE_recommended_os_settings():
     Old_os_settings.set_recommended_os_settings()
     New_os_settings = os_settings()
     New_os_settings.get_os_settings(Adapter_new_os_settings_list)
-    string = colors.lblue+"OS Settings "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
+    string = colors.lblue+"OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
     string += Old_os_settings.log_set_os_settings(New_os_settings)
     return string
 
 def HPE_recommended_bios_settings():
     Old_bios = bios_settings()
-    Old_bios.get_bios_settings()
+    Old_bios.get_hpe_bios_settings()
     Old_bios.set_hpe_bios_settings()
     New_bios = bios_settings()
-    New_bios.get_bios_settings()
+    New_bios.get_hpe_bios_settings()
+    string = colors.lblue+"BIOS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
     string = Old_bios.log_set_bios_settings(New_bios)
     return string
 
 
-if __name__=='__main__':
- 
-    Bus_id_list = []
-    Adapter_old_os_settings_list = []
-    Adapter_new_os_settings_list = []
-    Adapter_os_setting_list = []
-    parser = OptionParser(add_help_option=False)
-    options , logger = initialize()
-    
+def main():
+    global Mlnx_device_details
     if options.help:
-        logger.info(help_message)
+        print(help_message)
         sys.exit()
         
     file_name = "/tmp/hpefabrictuner_"+get_date_and_time()+".log"
     file = open(file_name,'w')
     file.close()
     Mlnx_device_details = get_mlnx_device_details()
-
+    """for item in Bus_id_list:
+        print(item.__dict__)"""
     if options.report:
         report = Generate_report()
         write_info_to_file(file_name,report,True)
@@ -985,7 +1027,7 @@ if __name__=='__main__':
         Os_settings_details = HPE_recommended_os_settings()
         write_info_to_file(file_name,Os_settings_details,True)
     
-    elif options.arch_bios:
+    elif options.hpe_bios:
         Bios_settings_details = HPE_recommended_bios_settings()
         write_info_to_file(file_name,Bios_settings_details,True)
         
@@ -994,8 +1036,23 @@ if __name__=='__main__':
         write_info_to_file(file_name,Os_settings_details,True)
         Bios_settings_details = HPE_recommended_bios_settings()
         write_info_to_file(file_name,Bios_settings_details,True)
+        result = Os_settings_details + "\n" + Bios_settings_details
+        write_info_to_file(file_name,result,True)
+        
         
     Detailed_log = get_deailed_log()
     write_info_to_file(file_name,Detailed_log,False)
 
-    print(colors.lyellow+"INFO"+colors.END+": Detailed System info file: "+file_name+"\n")
+    print(colors.yellow+"INFO"+colors.END+": Detailed System info file: "+file_name+"\n")
+
+if __name__=='__main__':
+    
+    Bus_id_list = []
+    Adapter_old_os_settings_list = []
+    Adapter_new_os_settings_list = []
+    Adapter_os_setting_list = []
+    Mlnx_device_details=''
+    parser = OptionParser(add_help_option=False)
+    options , logger = initialize()
+    
+    main()
