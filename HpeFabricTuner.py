@@ -743,95 +743,161 @@ class os_settings:
         global Adapter_new_os_settings_list
         string = ''
         note = "{}  [\033[33m Note \033[0m: Set from Current '{}' to HPE recommended '{}' ]"
-        if self.Firewall_status == new.Firewall_status:
+        error = "{}  [\033[31m Error \033[0m: Failed to Set from Current '{}' to HPE recommended '{}' ]"
+        if new.Firewall_status != self.Recommended_Firewall_status:
+            string += "    Firewall Status         :    "+error.format(new.Firewall_status,new.Firewall_status,self.Recommended_Firewall_status)+"\n"
+        elif self.Firewall_status == new.Firewall_status:
             string += "    Firewall Status         :    "+self.Firewall_status+"\n"
         else:
             string += "    Firewall Status         :    "+note.format(new.Firewall_status,self.Firewall_status,new.Firewall_status)+"\n"
-        if self.IRQ_balance == new.IRQ_balance:
+        
+        if self.Recommended_IRQ_balance != new.IRQ_balance:
+            string += "    IRQ Balance             :    "+error.format(new.IRQ_balance,new.IRQ_balance,self.Recommended_IRQ_balance)+"\n"
+        elif self.IRQ_balance == new.IRQ_balance:
             string += "    IRQ Balance             :    "+self.IRQ_balance+"\n"
         else:
             string += "    IRQ Balance             :    "+note.format(new.IRQ_balance,self.IRQ_balance,new.IRQ_balance)+"\n"
-        if self.Ipv4_tcp_timestamps == new.Ipv4_tcp_timestamps:
+        
+        if self.Recommended_Ipv4_tcp_timestamps != new.Ipv4_tcp_timestamps:
+            string += "    TCP Timestamp           :    "+error.format(new.Ipv4_tcp_timestamps,new.Ipv4_tcp_timestamps,self.Recommended_Ipv4_tcp_timestamps)+"\n"        
+        elif self.Ipv4_tcp_timestamps == new.Ipv4_tcp_timestamps:
             string += "    TCP Timestamp           :    "+self.Ipv4_tcp_timestamps+"\n"
         else:
             string += "    TCP Timestamp           :    "+note.format(new.Ipv4_tcp_timestamps,self.Ipv4_tcp_timestamps,new.Ipv4_tcp_timestamps)+"\n"
-        if self.Ipv4_tcp_sack == new.Ipv4_tcp_sack:
+        
+        if self.Recommended_Ipv4_tcp_sack != new.Ipv4_tcp_sack:
+            string += "    TCP Selective Acks      :    "+error.format(new.Ipv4_tcp_sack,new.Ipv4_tcp_sack,self.Recommended_Ipv4_tcp_sack)+"\n"
+        elif self.Ipv4_tcp_sack == new.Ipv4_tcp_sack:
             string += "    TCP Selective Acks      :    "+self.Ipv4_tcp_sack+"\n"
         else:
             string += "    TCP Selective Acks      :    "+note.format(new.Ipv4_tcp_sack,self.Ipv4_tcp_sack,new.Ipv4_tcp_sack)+"\n"
-        if self.Netdv_max_backlog == new.Netdv_max_backlog:
+        
+        if self.Recommended_Netdv_max_backlog != new.Netdv_max_backlog:
+            string += "    Proc Input Queue        :    "+error.format(new.Netdv_max_backlog,new.Netdv_max_backlog,self.Recommended_Netdv_max_backlog)+"\n"
+        elif self.Netdv_max_backlog == new.Netdv_max_backlog:
             string += "    Proc Input Queue        :    "+self.Netdv_max_backlog+"\n"
         else:
             string += "    Proc Input Queue        :    "+note.format(new.Netdv_max_backlog,self.Netdv_max_backlog,new.Netdv_max_backlog)+"\n"
-        if self.Net_ipv4_tcp_low_latency == new.Net_ipv4_tcp_low_latency:
+        
+        if self.Recommended_Net_ipv4_tcp_low_latency != new.Net_ipv4_tcp_low_latency:
+            string += "    TCP Low Latency         :    "+error.format(new.Net_ipv4_tcp_low_latency,new.Net_ipv4_tcp_low_latency,self.Recommended_Net_ipv4_tcp_low_latency)+"\n"
+        elif self.Net_ipv4_tcp_low_latency == new.Net_ipv4_tcp_low_latency:
             string += "    TCP Low Latency         :    "+self.Net_ipv4_tcp_low_latency+"\n"
         else:
             string += "    TCP Low Latency         :    "+note.format(new.Net_ipv4_tcp_low_latency,self.Net_ipv4_tcp_low_latency,new.Net_ipv4_tcp_low_latency)+"\n"
+        
         string += colors.lblue+"    TCP Buffer Size"+colors.END+":\n"
-        if self.Core_rmem_max == new.Core_rmem_max:
+        
+        if self.Recommended_Core_rmem_max != new.Core_rmem_max:
+            string += "        RMEM Max            :    "+error.format(new.Core_rmem_max,new.Core_rmem_max,self.Recommended_Core_rmem_max)+"\n"
+        elif self.Core_rmem_max == new.Core_rmem_max:
             string += "        RMEM Max            :    "+self.Core_rmem_max+"\n"
         else:
             string += "        RMEM Max            :    "+note.format(new.Core_rmem_max,self.Core_rmem_max,new.Core_rmem_max)+"\n"
-        if self.Core_wmem_max == new.Core_wmem_max:
+        
+        if self.Recommended_Core_wmem_max != new.Core_wmem_max:
+            string += "        WMEM Max            :    "+error.format(new.Core_wmem_max,new.Core_wmem_max,self.Recommended_Core_wmem_max)+"\n"
+        elif self.Core_wmem_max == new.Core_wmem_max:
             string += "        WMEM Max            :    "+self.Core_wmem_max+"\n"
         else:
             string += "        WMEM Max            :    "+note.format(new.Core_wmem_max,self.Core_wmem_max,new.Core_wmem_max)+"\n"
-        if self.Core_rmem_default == new.Core_rmem_default:
+        
+        
+        if self.Recommended_Core_rmem_default != new.Core_rmem_default:
+            string += "        RMEM Default        :    "+error.format(new.Core_rmem_default, new.Core_rmem_default,self.Recommended_Core_rmem_default)+"\n"
+        elif self.Core_rmem_default == new.Core_rmem_default:
             string += "        RMEM Default        :    "+self.Core_rmem_default+"\n"
         else:
             string += "        RMEM Default        :    "+note.format(new.Core_rmem_default, self.Core_rmem_default,new.Core_rmem_default)+"\n"
-        if self.Core_wmem_drefault == new.Core_wmem_drefault:
+        
+        if self.Recommended_Core_wmem_drefault != new.Core_wmem_drefault:
+            string += "        WMEM Default        :    "+error.format(new.Core_wmem_drefault,new.Core_wmem_drefault,self.Recommended_Core_wmem_drefault)+"\n"
+        elif self.Core_wmem_drefault == new.Core_wmem_drefault:
             string += "        WMEM Default        :    "+self.Core_wmem_drefault+"\n"
         else:
             string += "        WMEM Default        :    "+note.format(new.Core_wmem_drefault,self.Core_wmem_drefault,new.Core_wmem_drefault)+"\n"
-        if self.Core_optmem_max == new.Core_optmem_max:
+        
+        if self.Recommended_Core_optmem_max != new.Core_optmem_max:
+            string += "        OPTMEM Max          :    "+error.format(new.Core_optmem_max,new.Core_optmem_max,self.Recommended_Core_optmem_max)+"\n"
+        elif self.Core_optmem_max == new.Core_optmem_max:
             string += "        OPTMEM Max          :    "+self.Core_optmem_max+"\n"
         else:   
             string += "        OPTMEM Max          :    "+note.format(new.Core_optmem_max,self.Core_optmem_max,new.Core_optmem_max)+"\n"
+        
         string += colors.lblue+"    TCP Memory Size"+colors.END+":\n"
-        if self.Net_ipv4_tcp_rmem == new.Net_ipv4_tcp_rmem:
+        
+        if self.Recommended_Net_ipv4_tcp_rmem != new.Net_ipv4_tcp_rmem:    
+            string += "        TCP RMEM            :    "+error.format(new.Net_ipv4_tcp_rmem,new.Net_ipv4_tcp_rmem,self.Recommended_Net_ipv4_tcp_rmem)+"\n"
+        elif self.Net_ipv4_tcp_rmem == new.Net_ipv4_tcp_rmem:
             string += "        TCP RMEM            :    "+self.Net_ipv4_tcp_rmem+"\n"
         else:
             string += "        TCP RMEM            :    "+note.format(new.Net_ipv4_tcp_rmem,self.Net_ipv4_tcp_rmem,new.Net_ipv4_tcp_rmem)+"\n"
+        
+        if self.Recommended_Net_ipv4_tcp_wmem != new.Net_ipv4_tcp_wmem:
+            string += "        TCP WMEM            :    "+error.format(new.Net_ipv4_tcp_wmem,new.Net_ipv4_tcp_wmem,self.Recommended_Net_ipv4_tcp_wmem)+"\n"
         if self.Net_ipv4_tcp_wmem == new.Net_ipv4_tcp_wmem:
             string += "        TCP WMEM            :    "+self.Net_ipv4_tcp_wmem+"\n"
         else:  
             string += "        TCP WMEM            :    "+note.format(new.Net_ipv4_tcp_wmem,self.Net_ipv4_tcp_wmem,new.Net_ipv4_tcp_wmem)+"\n"
+        
         string += colors.lblue+"Mellanox Adapter OS Settings  "+colors.END+"["+colors.yellow+" HPE Recommended "+colors.END+"] :\n"
+        
         for index in range(len(Bus_id_list)):
+            
             if Bus_id_list[index].Network_if_name == 'Check_Driver': 
                 string += "    "+Bus_id_list[index].name+"    :   Check_Driver\n"
             else:
                 string += "    "+Adapter_old_os_settings_list[index].name+"\n"
-                if Adapter_old_os_settings_list[index].LRO_ON == Adapter_new_os_settings_list[index].LRO_ON:
+                
+                if self.Recommended_LRO_ON != Adapter_new_os_settings_list[index].LRO_ON:
+                    string += "        LRO                 :    "+error.format(Adapter_new_os_settings_list[index].LRO_ON, Adapter_new_os_settings_list[index].LRO_ON , self.Recommended_LRO_ON)+"\n"
+                elif Adapter_old_os_settings_list[index].LRO_ON == Adapter_new_os_settings_list[index].LRO_ON:
                     string += "        LRO                 :    "+Adapter_old_os_settings_list[index].LRO_ON+"\n"
                 else:
                     string += "        LRO                 :    "+note.format(Adapter_new_os_settings_list[index].LRO_ON, Adapter_old_os_settings_list[index].LRO_ON , Adapter_new_os_settings_list[index].LRO_ON)+"\n"    
 
-                if Adapter_old_os_settings_list[index].Rx_gro_hw == Adapter_new_os_settings_list[index].Rx_gro_hw:
+                if self.Recommended_Rx_gro_hw != Adapter_new_os_settings_list[index].Rx_gro_hw:
+                    string += "        GRO                 :    "+error.format(Adapter_new_os_settings_list[index].Rx_gro_hw , Adapter_new_os_settings_list[index].Rx_gro_hw ,self.Recommended_Rx_gro_hw)+"\n"
+                elif Adapter_old_os_settings_list[index].Rx_gro_hw == Adapter_new_os_settings_list[index].Rx_gro_hw:
                     string += "        GRO                 :    "+Adapter_old_os_settings_list[index].Rx_gro_hw+"\n"
                 else:
                     string += "        GRO                 :    "+note.format(Adapter_new_os_settings_list[index].Rx_gro_hw , Adapter_old_os_settings_list[index].Rx_gro_hw , Adapter_new_os_settings_list[index].Rx_gro_hw)+"\n"
-                if Adapter_old_os_settings_list[index].Rx_usecs == Adapter_new_os_settings_list[index].Rx_usecs:
+                
+                if self.Recommended_Rx_usecs != Adapter_new_os_settings_list[index].Rx_usecs:
+                    string += "        Adaptive Rx         :    "+error.format(Adapter_new_os_settings_list[index].Rx_usecs, Adapter_new_os_settings_list[index].Rx_usecs,self.Recommended_Rx_usecs)+"\n"
+                elif Adapter_old_os_settings_list[index].Rx_usecs == Adapter_new_os_settings_list[index].Rx_usecs:
                     string += "        Adaptive Rx         :    "+Adapter_old_os_settings_list[index].Rx_usecs+"\n"
                 else:
                     string += "        Adaptive Rx         :    "+note.format( Adapter_new_os_settings_list[index].Rx_usecs, Adapter_old_os_settings_list[index].Rx_usecs, Adapter_new_os_settings_list[index].Rx_usecs)+"\n"
-                if Adapter_old_os_settings_list[index].Tx_usecs == Adapter_new_os_settings_list[index].Tx_usecs:
+                    
+                if self.Recommended_Tx_usecs != Adapter_new_os_settings_list[index].Tx_usecs:
+                    string += "        Adaptive Tx         :    "+error.format(Adapter_new_os_settings_list[index].Tx_usecs , Adapter_new_os_settings_list[index].Tx_usecs,self.Recommended_Tx_usecs)+"\n"  
+                elif Adapter_old_os_settings_list[index].Tx_usecs == Adapter_new_os_settings_list[index].Tx_usecs:
                     string += "        Adaptive Tx         :    "+Adapter_old_os_settings_list[index].Tx_usecs+"\n"
                 else:
                     string += "        Adaptive Tx         :    "+note.format(Adapter_new_os_settings_list[index].Tx_usecs , Adapter_old_os_settings_list[index].Tx_usecs, Adapter_new_os_settings_list[index].Tx_usecs)+"\n"
-                if Adapter_old_os_settings_list[index].Ring_buffer_size_rx[1] == Adapter_new_os_settings_list[index].Ring_buffer_size_rx[1]:
+                
+                if self.Recommended_Ring_buffer_size_rx != Adapter_new_os_settings_list[index].Ring_buffer_size_rx[1]:
+                    string += "        Ring_buffer_RX      :    "+error.format(Adapter_new_os_settings_list[index].Ring_buffer_size_rx[1] , Adapter_new_os_settings_list[index].Ring_buffer_size_rx[1], self.Recommended_Ring_buffer_size_rx)+"\n"
+                elif Adapter_old_os_settings_list[index].Ring_buffer_size_rx[1] == Adapter_new_os_settings_list[index].Ring_buffer_size_rx[1]:
                     string += "        Ring_buffer_RX      :    "+Adapter_old_os_settings_list[index].Ring_buffer_size_rx[1]+"\n"
                 else:
                     string += "        Ring_buffer_RX      :    "+note.format(Adapter_new_os_settings_list[index].Ring_buffer_size_rx[1] , Adapter_old_os_settings_list[index].Ring_buffer_size_rx[1], Adapter_new_os_settings_list[index].Ring_buffer_size_rx[1])+"\n"
-                if Adapter_old_os_settings_list[index].Ring_buffer_size_tx[1] == Adapter_new_os_settings_list[index].Ring_buffer_size_tx[1]:
+                
+                if self.Recommended_Ring_buffer_size_tx != Adapter_new_os_settings_list[index].Ring_buffer_size_tx[1]:
+                    string += "        Ring_buffer_TX      :    "+error.format(Adapter_new_os_settings_list[index].Ring_buffer_size_tx[1] , Adapter_new_os_settings_list[index].Ring_buffer_size_tx[1],self.Recommended_Ring_buffer_size_tx)+"\n"                
+                elif Adapter_old_os_settings_list[index].Ring_buffer_size_tx[1] == Adapter_new_os_settings_list[index].Ring_buffer_size_tx[1]:
                     string += "        Ring_buffer_TX      :    "+Adapter_old_os_settings_list[index].Ring_buffer_size_tx[1]+"\n"
                 else:
                     string += "        Ring_buffer_TX      :    "+note.format(Adapter_new_os_settings_list[index].Ring_buffer_size_tx[1] , Adapter_old_os_settings_list[index].Ring_buffer_size_tx[1],Adapter_new_os_settings_list[index].Ring_buffer_size_tx[1])+"\n"
+                
+                if self.Recommended_Combined_queue == Adapter_new_os_settings_list[index].Combined_queue[1]:
+                    string += "        Combined queue      :    "+note.format(Adapter_new_os_settings_list[index].Combined_queue[1] , Adapter_new_os_settings_list[index].Combined_queue[1], self.Recommended_Combined_queue)+"\n"
                 if Adapter_old_os_settings_list[index].Combined_queue[1] == Adapter_new_os_settings_list[index].Combined_queue[1]:
                     string += "        Combined queue      :    "+Adapter_old_os_settings_list[index].Combined_queue[1]+"\n"
                 else:
                     string += "        Combined queue      :    "+note.format(Adapter_new_os_settings_list[index].Combined_queue[1] , Adapter_old_os_settings_list[index].Combined_queue[1], Adapter_new_os_settings_list[index].Combined_queue[1])+"\n"
+        
         return string
 
 
