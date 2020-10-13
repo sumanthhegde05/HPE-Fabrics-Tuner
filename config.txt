@@ -1,0 +1,6 @@
+WorkloadProfile="HighPerformanceCompute(HPC)"
+#PreferredIOBusEnable=Enabled
+#PreferredIOBusNumber=39
+#ProcSMT=Disabled
+#ProcAmdIOMMU=Enabled
+ProcHyperthreading=Disabled
